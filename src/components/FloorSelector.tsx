@@ -5,7 +5,7 @@ export default function FloorSelector() {
   const { 
     currentFloor, 
     setFloor, 
-    guestId, 
+    userId, // ✅ เปลี่ยนจาก guestId เป็น userId ให้ตรงกับ Store ตัวล่าสุด
     userPosition, 
     targetLocation 
   } = useNavStore();
@@ -20,12 +20,26 @@ export default function FloorSelector() {
           <button 
             key={f} 
             onClick={() => {
-              console.log("floor", f);
-              console.log("id", guestId);
-              console.log("current_pos", userPosition);
-              // ถ้า targetLocation มีค่า ให้โชว์พิกัด ถ้าไม่มีโชว์ null
-              console.log("target_pos", targetLocation?.pos || targetLocation);
+              // --- 📊 ส่วนของ Log สำหรับเช็คการทำงาน ---
+              console.log("------- Floor Change Check -------");
+              console.log("Floor Selected:", f);
+              console.log("User ID (Guest):", userId); // ✅ จะไม่ undefined แล้ว
+              console.log("Current User Position (3D):", userPosition);
               
+              // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
+              if (targetLocation) {
+                console.log("Target Destination:", {
+                  id: targetLocation.location_id,
+                  node: targetLocation.node_id,
+                  name: targetLocation.name_th,
+                  floor: targetLocation.floor
+                });
+              } else {
+                console.log("Target Destination: null (ยังไม่ได้เลือกสถานที่)");
+              }
+              console.log("----------------------------------");
+              
+              // สั่งเปลี่ยนชั้นในระบบ 3D
               setFloor(f);
             }}
             className={`w-14 h-14 rounded-2xl shadow-xl font-black transition-all flex items-center justify-center border-2 ${

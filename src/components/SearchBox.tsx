@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavStore } from '../store/useNavStore';
 
+
 const LOCATIONS_DATA = [
   { "location_id": 1, "node_id": 101, "name_th": "โถงใต้อาคาร 81 (ลานอเนกประสงค์)", "name_en": "Under Bldg 81 (Hall)", "category": "public", "floor": 1 },
   { "location_id": 2, "node_id": 205, "name_th": "ภาควิชาวิศวกรรมไฟฟ้าและคอมพิวเตอร์ (ECE)", "name_en": "Dept. of ECE", "category": "department", "floor": 2 },

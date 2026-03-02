@@ -1,72 +1,95 @@
 import { create } from 'zustand';
-import { v4 as uuidv4 } from 'uuid';
+import { PositioningManager } from '../core/positioning';
+
+let positioning: PositioningManager | null = null;
+let gpsOrigin: { x: number, y: number } | null = null;
+
+// 🟢 ค่าคงที่สำหรับแปลงพิกัด GPS เป็นเมตร (ประมาณ 111,319 เมตร ต่อ 1 องศา)
+const METER_SCALE = 111319;
 
 interface NavState {
-  guestId: string;
+  userId: string | null;
   currentFloor: number;
   userPosition: [number, number, number];
   targetLocation: any | null;
-  cameraMode: 'FREE' | 'GYRO';
+  cameraMode: 'FREE' | 'FOLLOW';
   isFollowing: boolean;
-  
-  // ✅ ต้องมี 2 บรรทัดนี้
-  setupStep: 'none' | 'floor' | 'avatar';
+  setupStep: string | null;
   avatarType: 'female' | 'male' | null;
-
-  initGuestId: () => void;
-  setFloor: (floor: number) => void;
-  setUserPosition: (pos: [number, number, number]) => void;
-  setTarget: (location: any) => void;
-  toggleGPS: () => Promise<void>;
   
-  // ✅ ต้องมี 3 บรรทัดนี้
-  setSetupStep: (step: 'none' | 'floor' | 'avatar') => void;
+  initGuestId: () => void;
+  setSetupStep: (step: string | null) => void;
   setAvatarType: (type: 'female' | 'male' | null) => void;
-  cancelSetup: () => void;
+  setFloor: (floor: number) => void;
+  setTarget: (location: any | null) => void;
+  toggleFollowing: () => void;
+  cycleCameraMode: () => void;
 }
 
 export const useNavStore = create<NavState>((set, get) => ({
-  guestId: localStorage.getItem('x-guest-id') || '',
+  userId: null,
   currentFloor: 1,
   userPosition: [0, 0, 0],
   targetLocation: null,
   cameraMode: 'FREE',
   isFollowing: false,
-  
-  // ✅ ค่าเริ่มต้น
-  setupStep: 'none',
+  setupStep: 'avatar',
   avatarType: null,
 
   initGuestId: () => {
-    let id = localStorage.getItem('x-guest-id') || uuidv4();
-    localStorage.setItem('x-guest-id', id);
-    set({ guestId: id });
-  },
-
-  setFloor: (floor) => {
-    console.log("📍 Floor:", floor, "ID:", get().guestId);
-    set({ currentFloor: floor });
-  },
-
-  setUserPosition: (pos) => set({ userPosition: pos }),
-  setTarget: (location) => set({ targetLocation: location }),
-
-  toggleGPS: async () => {
-    const isNowFollowing = get().isFollowing;
-    if (!isNowFollowing) {
-      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        const res = await (DeviceOrientationEvent as any).requestPermission();
-        if (res !== 'granted') return;
-      }
+    let id = localStorage.getItem("guest_id");
+    if (!id) {
+      id = Math.random().toString(16).slice(2, 10);
+      localStorage.setItem("guest_id", id);
     }
-    set((state) => ({
-      isFollowing: !state.isFollowing,
-      cameraMode: !state.isFollowing ? 'GYRO' : 'FREE'
-    }));
+    if (!positioning) positioning = new PositioningManager(id);
+    set({ userId: id });
   },
 
-  // ✅ ฟังก์ชันที่ SearchBox เรียกใช้ต้องอยู่ตรงนี้
   setSetupStep: (step) => set({ setupStep: step }),
-  setAvatarType: (type) => set({ avatarType: type }),
-  cancelSetup: () => set({ setupStep: 'none', targetLocation: null }),
+  setAvatarType: (type) => set({ avatarType: type, setupStep: 'floor' }),
+  setFloor: (floor) => set({ currentFloor: floor, setupStep: null }),
+
+  setTarget: (location) => {
+    set({ targetLocation: location });
+    if (location && positioning) {
+      positioning.setDestination({
+        x: location.node_id || 0,
+        y: location.node_id || 0,
+        floor_id: location.floor || 1
+      });
+    }
+  },
+
+  cycleCameraMode: () => {
+    set({ cameraMode: get().cameraMode === 'FREE' ? 'FOLLOW' : 'FREE' });
+  },
+
+  toggleFollowing: () => {
+    const newState = !get().isFollowing;
+    
+    if (newState) {
+      gpsOrigin = null; 
+      set({ userPosition: [0, 0, 0], isFollowing: true, cameraMode: 'FOLLOW' });
+
+      if (positioning) {
+        positioning.startGPSMode((pos) => {
+          if (!gpsOrigin) {
+            gpsOrigin = { x: pos.x, y: pos.y };
+          }
+
+          // 🟢 แปลงความต่างของพิกัดให้เป็น "เมตร" เพื่อให้ตัวละครขยับเห็นชัดเจน
+          const relativeX = (pos.x - gpsOrigin.x) * METER_SCALE;
+          const relativeZ = (pos.y - gpsOrigin.y) * METER_SCALE;
+
+          console.log(`🚶 กำลังเดิน: X=${relativeX.toFixed(2)}, Z=${relativeZ.toFixed(2)}`);
+          set({ userPosition: [relativeX, 0, relativeZ] });
+        });
+      }
+    } else {
+      set({ isFollowing: false, cameraMode: 'FREE' });
+      gpsOrigin = null;
+      if (positioning) positioning.startManualMode();
+    }
+  }
 }));
