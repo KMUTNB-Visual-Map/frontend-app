@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import {
   OrbitControls,
   PerspectiveCamera,
@@ -20,9 +20,13 @@ export default function MapCanvas() {
     userPosition,
     avatarType,
     targetLocation,
+    setUserPosition,
   } = useNavStore();
 
   const { gl } = useThree();
+  const movingPositionRef = useRef<[number, number, number]>(userPosition);
+  const publishAccumulatorRef = useRef(0);
+  const followCameraHeightRef = useRef(1.3);
 
   // Controls ref to dynamically toggle pan/zoom based on gesture classification
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
@@ -36,6 +40,86 @@ export default function MapCanvas() {
     selectedFloor !== null &&
     currentFloor === selectedFloor &&
     avatarType !== null;
+
+  useEffect(() => {
+    movingPositionRef.current = userPosition;
+  }, [userPosition]);
+
+  // -----------------------------
+  // Follow Mode Vertical Camera Adjustment
+  // -----------------------------
+  useEffect(() => {
+    if (cameraMode !== 'FOLLOW') return;
+
+    const el = gl.domElement;
+    const minHeight = 0.8;
+    const maxHeight = 8;
+    let activePointerId: number | null = null;
+    let lastY = 0;
+
+    const clampHeight = (next: number) =>
+      THREE.MathUtils.clamp(next, minHeight, maxHeight);
+
+    const onWheel = (e: WheelEvent) => {
+      // scroll up => higher, scroll down => lower
+      const next = followCameraHeightRef.current - e.deltaY * 0.005;
+      followCameraHeightRef.current = clampHeight(next);
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (activePointerId !== null) return;
+      activePointerId = e.pointerId;
+      lastY = e.clientY;
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (activePointerId !== e.pointerId) return;
+      const dy = e.clientY - lastY;
+      lastY = e.clientY;
+      const next = followCameraHeightRef.current - dy * 0.02;
+      followCameraHeightRef.current = clampHeight(next);
+    };
+
+    const onPointerEnd = (e: PointerEvent) => {
+      if (activePointerId === e.pointerId) {
+        activePointerId = null;
+      }
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: true });
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerEnd);
+    el.addEventListener('pointercancel', onPointerEnd);
+
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('pointerdown', onPointerDown);
+      el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerup', onPointerEnd);
+      el.removeEventListener('pointercancel', onPointerEnd);
+    };
+  }, [cameraMode, gl.domElement]);
+
+  const targetWorldPosition = useMemo<[number, number] | null>(() => {
+    if (!targetLocation) return null;
+
+    if (
+      typeof targetLocation.x === 'number' &&
+      typeof targetLocation.z === 'number'
+    ) {
+      return [targetLocation.x, targetLocation.z];
+    }
+
+    if (typeof targetLocation.node_id === 'number') {
+      const nodeId = targetLocation.node_id;
+      const fallbackX = ((nodeId % 100) - 50) / 5;
+      const fallbackZ = (Math.floor(nodeId / 100) - 3) * 4;
+      return [fallbackX, fallbackZ];
+    }
+
+    return null;
+  }, [targetLocation]);
 
   // -----------------------------
   // Gyro State
@@ -193,41 +277,47 @@ export default function MapCanvas() {
   // -----------------------------
   // Camera Follow Logic
   // -----------------------------
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (cameraMode !== 'FOLLOW') return;
     if (!shouldRenderAvatar) return;
 
+    let nextPosition: [number, number, number] = movingPositionRef.current;
+
+    if (targetWorldPosition) {
+      const [tx, tz] = targetWorldPosition;
+      const dx = tx - nextPosition[0];
+      const dz = tz - nextPosition[2];
+      const distance = Math.hypot(dx, dz);
+
+      const arrivalThreshold = 0.05;
+      if (distance > arrivalThreshold) {
+        const moveSpeed = 0.35;
+        const step = Math.min(moveSpeed * delta, distance);
+        const nx = nextPosition[0] + (dx / distance) * step;
+        const nz = nextPosition[2] + (dz / distance) * step;
+        nextPosition = [nx, 0, nz];
+        movingPositionRef.current = nextPosition;
+      }
+    }
+
+    publishAccumulatorRef.current += delta;
+    const publishStep = 1 / 30;
+    if (publishAccumulatorRef.current >= publishStep) {
+      publishAccumulatorRef.current = 0;
+      setUserPosition(movingPositionRef.current);
+    }
+
     const radius = 3.2;
-    const targetY = 1.3;
-    const smoothing = 0.1;
+    const targetY = followCameraHeightRef.current;
 
     const targetX =
-      userPosition[0] - Math.sin(gyro.current.alpha) * radius;
+      nextPosition[0] - Math.sin(gyro.current.alpha) * radius;
 
     const targetZ =
-      userPosition[2] - Math.cos(gyro.current.alpha) * radius;
+      nextPosition[2] - Math.cos(gyro.current.alpha) * radius;
 
-    state.camera.position.x = THREE.MathUtils.lerp(
-      state.camera.position.x,
-      targetX,
-      smoothing
-    );
-
-    state.camera.position.z = THREE.MathUtils.lerp(
-      state.camera.position.z,
-      targetZ,
-      smoothing
-    );
-
-    state.camera.position.y = THREE.MathUtils.lerp(
-      state.camera.position.y,
-      targetY,
-      smoothing
-    );
-    console.log("currentFloor:", currentFloor);
-    console.log("userActualFloor:", userActualFloor);
-
-    state.camera.lookAt(userPosition[0], 1.2, userPosition[2]);
+    state.camera.position.set(targetX, targetY, targetZ);
+    state.camera.lookAt(nextPosition[0], 1.2, nextPosition[2]);
   });
 
   return (

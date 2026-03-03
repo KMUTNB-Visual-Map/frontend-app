@@ -35,6 +35,7 @@ interface NavState {
   setFloor: (floor: number) => void;
   confirmUserFloor: (floor: number) => void;
   setTarget: (location: any | null) => void;
+  setUserPosition: (position: [number, number, number]) => void;
   toggleFollowing: () => void;
   cycleCameraMode: () => void;
   setUserActualFloor: (floor: number) => void;
@@ -105,6 +106,8 @@ export const useNavStore = create<NavState>((set, get) => ({
       });
     }
   },
+
+  setUserPosition: (position) => set({ userPosition: position }),
 
   cycleCameraMode: () => {
     const current = get().cameraMode;
