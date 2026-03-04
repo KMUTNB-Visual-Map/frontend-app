@@ -11,7 +11,11 @@ export interface Position {
 
 export class PositioningManager {
 
-  constructor(private guestId: string) {}
+  private guestId: string;
+
+  constructor(guestId: string) {
+    this.guestId = guestId;
+  }
 
   private readonly gpsUpdateIntervalMs = 2000;
   private lastGpsUpdateAt = 0;

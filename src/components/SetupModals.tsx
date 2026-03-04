@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavStore } from '../store/useNavStore';
 import { requestMotionPermission } from '../core/gps';
 

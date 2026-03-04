@@ -135,8 +135,10 @@ export default function MapCanvas() {
 
     const resetControls = () => {
       state.mode = 'idle';
-      controlsRef.current && (controlsRef.current.enablePan = true);
-      controlsRef.current && (controlsRef.current.enableZoom = true);
+      if (controlsRef.current) {
+        controlsRef.current.enablePan = true;
+        controlsRef.current.enableZoom = true;
+      }
     };
 
     const calcDistance = () => {
@@ -162,8 +164,10 @@ export default function MapCanvas() {
         state.initialDistance = calcDistance();
         state.lastMid = calcMid();
         state.mode = 'pending';
-        controlsRef.current && (controlsRef.current.enablePan = true);
-        controlsRef.current && (controlsRef.current.enableZoom = true);
+        if (controlsRef.current) {
+          controlsRef.current.enablePan = true;
+          controlsRef.current.enableZoom = true;
+        }
       }
     };
 
@@ -189,26 +193,34 @@ export default function MapCanvas() {
 
           if (pinchDominates) {
             state.mode = 'zoom';
-            controlsRef.current && (controlsRef.current.enableZoom = true);
-            controlsRef.current && (controlsRef.current.enablePan = false);
+            if (controlsRef.current) {
+              controlsRef.current.enableZoom = true;
+              controlsRef.current.enablePan = false;
+            }
           } else if (
             midMove > panThreshold ||
             (midMove > 0 && distAbs <= pinchNoiseGuard)
           ) {
             // Allow small pinch drift to still register as pan
             state.mode = 'pan';
-            controlsRef.current && (controlsRef.current.enablePan = true);
-            controlsRef.current && (controlsRef.current.enableZoom = false);
+            if (controlsRef.current) {
+              controlsRef.current.enablePan = true;
+              controlsRef.current.enableZoom = false;
+            }
           }
         }
 
         // Maintain locks during gesture
         if (state.mode === 'zoom') {
-          controlsRef.current && (controlsRef.current.enableZoom = true);
-          controlsRef.current && (controlsRef.current.enablePan = false);
+          if (controlsRef.current) {
+            controlsRef.current.enableZoom = true;
+            controlsRef.current.enablePan = false;
+          }
         } else if (state.mode === 'pan') {
-          controlsRef.current && (controlsRef.current.enablePan = true);
-          controlsRef.current && (controlsRef.current.enableZoom = false);
+          if (controlsRef.current) {
+            controlsRef.current.enablePan = true;
+            controlsRef.current.enableZoom = false;
+          }
         }
 
         state.lastMid = mid;

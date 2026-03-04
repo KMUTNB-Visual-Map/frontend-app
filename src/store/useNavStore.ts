@@ -6,9 +6,23 @@ let gpsOrigin: { x: number, y: number } | null = null;
 let startDeadzoneUnlocked = false;
 
 // 🟢 ค่าคงที่สำหรับแปลงพิกัด GPS เป็นเมตร
-const METER_SCALE = 111319;
-const MAP_UNITS_PER_METER = 0.05;
+const METER_SCALE = 111319005;
 const START_DEADZONE_METERS = 1;
+
+interface TargetLocation {
+  location_id?: number | string;
+  node_id?: number;
+  name_th?: string;
+  floor?: number;
+  x?: number;
+  z?: number;
+}
+
+interface GpsPosition {
+  x: number;
+  y: number;
+  floor_id?: number;
+}
 
 interface NavState {
   userId: string | null;
@@ -22,8 +36,7 @@ interface NavState {
   userPosition: [number, number, number];
   rawGpsPosition: [number, number] | null;
   convertedGpsMeters: [number, number] | null;
-  gyroHeadingDeg: number | null;
-  targetLocation: any | null;
+  targetLocation: TargetLocation | null;
 
   cameraMode: 'FREE' | 'FOLLOW';
   isFollowing: boolean;
@@ -36,9 +49,8 @@ interface NavState {
   setAvatarType: (type: 'female' | 'male' | null) => void;
   setFloor: (floor: number) => void;
   confirmUserFloor: (floor: number) => void;
-  setTarget: (location: any | null) => void;
+  setTarget: (location: TargetLocation | null) => void;
   setUserPosition: (position: [number, number, number]) => void;
-  setGyroHeadingDeg: (deg: number | null) => void;
   toggleFollowing: () => void;
   cycleCameraMode: () => void;
   setUserActualFloor: (floor: number) => void;
@@ -54,7 +66,6 @@ export const useNavStore = create<NavState>((set, get) => ({
   userPosition: [0, 0, 0],
   rawGpsPosition: null,
   convertedGpsMeters: null,
-  gyroHeadingDeg: null,
   targetLocation: null,
 
   cameraMode: 'FREE',
@@ -89,14 +100,8 @@ export const useNavStore = create<NavState>((set, get) => ({
 
   cancelSetup: () => set({ setupStep: 'none' }),
 
-  setFloor: (floor) => {
-    const { isFollowing } = get();
-
-    set({
-      currentFloor: floor,
-      cameraMode: isFollowing ? 'FREE' : get().cameraMode,
-    });
-  },
+  setFloor: (floor) =>
+    set({ currentFloor: floor }),
 
   confirmUserFloor: (floor) =>
     set({
@@ -118,7 +123,6 @@ export const useNavStore = create<NavState>((set, get) => ({
   },
 
   setUserPosition: (position) => set({ userPosition: position }),
-  setGyroHeadingDeg: (deg) => set({ gyroHeadingDeg: deg }),
 
   cycleCameraMode: () => {
     const current = get().cameraMode;
@@ -142,38 +146,33 @@ export const useNavStore = create<NavState>((set, get) => ({
 
       if (!positioning) return;
 
-      positioning.startGPSMode((pos: any) => {
+      positioning.startGPSMode((pos: GpsPosition) => {
         // 🔹 set origin ครั้งแรก
         if (!gpsOrigin) {
           gpsOrigin = { x: pos.x, y: pos.y };
         }
 
-        // 🔹 แปลงจาก lat/lon เป็น local meters (North/East)
-        const originLatRad = (gpsOrigin.x * Math.PI) / 180;
-        const northMeters = (pos.x - gpsOrigin.x) * METER_SCALE;
-        const eastMeters =
-          (pos.y - gpsOrigin.y) * METER_SCALE * Math.cos(originLatRad);
-        const distanceFromStart = Math.hypot(northMeters, eastMeters);
+        // 🔹 แปลงเป็นเมตร
+        const relativeX = (pos.x - gpsOrigin.x) * METER_SCALE;
+        const relativeZ = (pos.y - gpsOrigin.y) * METER_SCALE;
+        const distanceFromStart = Math.hypot(relativeX, relativeZ);
 
         if (!startDeadzoneUnlocked && distanceFromStart > START_DEADZONE_METERS) {
           startDeadzoneUnlocked = true;
         }
-
-        const worldX = eastMeters * MAP_UNITS_PER_METER;
-        const worldZ = northMeters * MAP_UNITS_PER_METER;
 
         const latRad = (pos.x * Math.PI) / 180;
         const convertedX = pos.y * METER_SCALE * Math.cos(latRad);
         const convertedZ = pos.x * METER_SCALE;
 
         console.log(
-          `🚶 Walking: meters(N=${northMeters.toFixed(2)}, E=${eastMeters.toFixed(2)}) world(X=${worldX.toFixed(2)}, Z=${worldZ.toFixed(2)})`
+          `🚶 Walking: X=${relativeX.toFixed(2)}, Z=${relativeZ.toFixed(2)}`
         );
 
         // 🔥 อัปเดตตำแหน่ง + floor จริง
         set({
           userPosition: startDeadzoneUnlocked
-            ? [worldX, 0, worldZ]
+            ? [relativeX, 0, relativeZ]
             : [0, 0, 0],
           rawGpsPosition: [pos.x, pos.y],
           convertedGpsMeters: [convertedX, convertedZ],
