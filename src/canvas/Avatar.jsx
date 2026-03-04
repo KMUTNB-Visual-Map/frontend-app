@@ -1,55 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 import { useNavStore } from '../store/useNavStore';
 
 // 🟢 Component ย่อย: จัดการโหลดโมเดลและแอนิเมชัน
 function AvatarModel({ type }) {
-  const { userPosition, isFollowing, cameraMode, targetLocation } = useNavStore();
+  const { userPosition, isFollowing } = useNavStore();
   const group = useRef(null); // ไร้คราบ TypeScript แน่นอนครับ
-  const currentYaw = useRef(0);
-  const cameraForward = useRef(new THREE.Vector3());
-  const latestPosition = useRef(userPosition);
-  const lastSamplePosition = useRef(userPosition);
-  const [isMoving, setIsMoving] = useState(false);
-
-  useEffect(() => {
-    latestPosition.current = userPosition;
-  }, [userPosition]);
-
-  useEffect(() => {
-    const movementThresholdMeters = 0.15;
-
-    const intervalId = window.setInterval(() => {
-      const [currX, , currZ] = latestPosition.current;
-      const [lastX, , lastZ] = lastSamplePosition.current;
-
-      const distance = Math.hypot(currX - lastX, currZ - lastZ);
-      const isAutoMoving = cameraMode === 'FOLLOW' && !!targetLocation;
-      const movingNow = (isFollowing || isAutoMoving) && distance > movementThresholdMeters;
-
-      setIsMoving(movingNow);
-      lastSamplePosition.current = latestPosition.current;
-    }, 2000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [isFollowing, cameraMode, targetLocation]);
 
   // 1. โหลดไฟล์ 3D ทั้งหมด (เพิ่มไฟล์เดินของผู้ชายแล้ว)
   const femaleIdle = useGLTF('/models/women_idle.glb');
-  const femaleWalk = useGLTF('/models/women_walk.glb');
-  const maleIdle = useGLTF('/models/men_idle.glb');
-  const maleWalk = useGLTF('/models/men_walk.glb');
+  const femaleWalk = useGLTF('/models/women_idle.glb'); 
+  const maleIdle = useGLTF('/models/men_idle.glb'); 
+  const maleWalk = useGLTF('/models/men_idle.glb'); // ✅ ของนักเรียนชาย
 
   // 2. เลือกไฟล์ตามเพศ และสถานะการเดิน
   let currentModel = femaleIdle; 
   if (type === 'female') {
-    currentModel = isMoving ? femaleWalk : femaleIdle;
+    currentModel = isFollowing ? femaleWalk : femaleIdle;
   } else if (type === 'male') {
-    currentModel = isMoving ? maleWalk : maleIdle;
+    currentModel = isFollowing ? maleWalk : maleIdle; // ✅ ใส่เงื่อนไขเดินให้ผู้ชายแล้ว
   }
 
   // 3. Hook ดึงแอนิเมชัน
@@ -68,33 +37,6 @@ function AvatarModel({ type }) {
       action?.fadeOut(0.2);
     };
   }, [actions, names, currentModel]);
-
-  useFrame((state, delta) => {
-    if (!group.current) return;
-
-    state.camera.getWorldDirection(cameraForward.current);
-    cameraForward.current.y = 0;
-
-    if (cameraForward.current.lengthSq() < 1e-8) return;
-
-    cameraForward.current.normalize();
-
-    const targetYaw = Math.atan2(
-      cameraForward.current.x,
-      cameraForward.current.z
-    );
-
-    const shortestDelta = THREE.MathUtils.euclideanModulo(
-      targetYaw - currentYaw.current + Math.PI,
-      Math.PI * 2
-    ) - Math.PI;
-
-    const followDurationSeconds = 2;
-    const followFactor = 1 - Math.exp(-delta / followDurationSeconds);
-
-    currentYaw.current += shortestDelta * followFactor;
-    group.current.rotation.y = currentYaw.current;
-  });
 
   return (
     <group ref={group} position={userPosition} scale={[1, 1, 1]}>
@@ -117,6 +59,6 @@ export default function Avatar() {
 
 // โหลดไฟล์เตรียมไว้ล่วงหน้าทั้งหมด จะได้ไม่กระตุกตอนสลับท่า
 useGLTF.preload('/models/women_idle.glb');
-useGLTF.preload('/models/women_walk.glb');
+useGLTF.preload('/models/women_idle.glb');
 useGLTF.preload('/models/men_idle.glb');
-useGLTF.preload('/models/men_walk.glb');
+useGLTF.preload('/models/men_idle.glb'); // ✅ พรีโหลดท่าเดินชาย

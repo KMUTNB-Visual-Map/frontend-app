@@ -122,43 +122,6 @@ export default function MapCanvas() {
   }, [targetLocation]);
 
   // -----------------------------
-  // Gyro State
-  // -----------------------------
-  const gyro = useRef<{
-    alpha: number;
-    initial: number | null;
-  }>({
-    alpha: 0,
-    initial: null,
-  });
-
-  // -----------------------------
-  // Device Orientation Listener
-  // -----------------------------
-  useEffect(() => {
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (cameraMode === 'FOLLOW' && e.alpha !== null) {
-        if (gyro.current.initial === null) {
-          gyro.current.initial = e.alpha;
-        }
-
-        const diff = e.alpha - gyro.current.initial;
-        gyro.current.alpha = THREE.MathUtils.degToRad(diff);
-      }
-    };
-
-    if (cameraMode === 'FOLLOW') {
-      window.addEventListener('deviceorientation', handleOrientation, true);
-    } else {
-      gyro.current.initial = null;
-    }
-
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-    };
-  }, [cameraMode]);
-
-  // -----------------------------
   // Touch Gesture Lock (mutually exclusive pan vs zoom)
   // -----------------------------
   useEffect(() => {
@@ -310,11 +273,8 @@ export default function MapCanvas() {
     const radius = 3.2;
     const targetY = followCameraHeightRef.current;
 
-    const targetX =
-      nextPosition[0] - Math.sin(gyro.current.alpha) * radius;
-
-    const targetZ =
-      nextPosition[2] - Math.cos(gyro.current.alpha) * radius;
+    const targetX = nextPosition[0];
+    const targetZ = nextPosition[2] - radius;
 
     state.camera.position.set(targetX, targetY, targetZ);
     state.camera.lookAt(nextPosition[0], 1.2, nextPosition[2]);

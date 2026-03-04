@@ -31,7 +31,7 @@ const LOCATIONS_DATA: Location[] = [
 export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const { setTarget, setSetupStep } = useNavStore();
+  const { setTarget, setSetupStep, setUserActualFloor } = useNavStore();
 
   const suggestions = useMemo<Location[]>(() => {
     if (!query.trim()) return LOCATIONS_DATA.slice(0, 5);
@@ -45,6 +45,7 @@ export default function SearchBox() {
     setQuery(''); 
     setIsFocused(false);
     setTarget(loc); // 1. ✅ ตั้งเป้าหมายใน Store ตามที่เลือกจาก SearchBox
+    setUserActualFloor(loc.floor);
     setSetupStep('floor'); // 2. ✅ เปิดหน้าถามชั้นจริงที่ผู้ใช้ยืนอยู่
   };
 
