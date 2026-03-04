@@ -6,7 +6,8 @@ let gpsOrigin: { x: number, y: number } | null = null;
 let startDeadzoneUnlocked = false;
 
 // 🟢 ค่าคงที่สำหรับแปลงพิกัด GPS เป็นเมตร
-const METER_SCALE = 111319005;
+const METER_SCALE = 111319.5;
+const WORLD_UNITS_PER_METER = 0.1;
 const START_DEADZONE_METERS = 1;
 
 interface TargetLocation {
@@ -170,9 +171,12 @@ export const useNavStore = create<NavState>((set, get) => ({
         );
 
         // 🔥 อัปเดตตำแหน่ง + floor จริง
+        const worldX = relativeX * WORLD_UNITS_PER_METER;
+        const worldZ = relativeZ * WORLD_UNITS_PER_METER;
+
         set({
           userPosition: startDeadzoneUnlocked
-            ? [relativeX, 0, relativeZ]
+            ? [worldX, 0, worldZ]
             : [0, 0, 0],
           rawGpsPosition: [pos.x, pos.y],
           convertedGpsMeters: [convertedX, convertedZ],
