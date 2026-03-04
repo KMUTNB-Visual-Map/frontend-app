@@ -27,6 +27,9 @@ export default function MapCanvas() {
   const movingPositionRef = useRef<[number, number, number]>(userPosition);
   const publishAccumulatorRef = useRef(0);
   const followCameraHeightRef = useRef(1.3);
+  const followYawCurrentRef = useRef(-Math.PI / 2);
+  const followYawTargetRef = useRef<number | null>(null);
+  const initialSensorHeadingRef = useRef<number | null>(null);
 
   // Controls ref to dynamically toggle pan/zoom based on gesture classification
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
@@ -44,6 +47,58 @@ export default function MapCanvas() {
   useEffect(() => {
     movingPositionRef.current = userPosition;
   }, [userPosition]);
+
+  // -----------------------------
+  // Follow Mode Gyroscope Heading (Yaw)
+  // -----------------------------
+  useEffect(() => {
+    if (cameraMode !== 'FOLLOW') {
+      followYawTargetRef.current = null;
+      initialSensorHeadingRef.current = null;
+      return;
+    }
+
+    const normalizeAngle = (angle: number) => {
+      let a = angle;
+      while (a <= -Math.PI) a += Math.PI * 2;
+      while (a > Math.PI) a -= Math.PI * 2;
+      return a;
+    };
+
+    const getHeadingRadians = (evt: DeviceOrientationEvent) => {
+      const anyEvt = evt as DeviceOrientationEvent & { webkitCompassHeading?: number };
+
+      if (typeof anyEvt.webkitCompassHeading === 'number' && Number.isFinite(anyEvt.webkitCompassHeading)) {
+        return THREE.MathUtils.degToRad(anyEvt.webkitCompassHeading);
+      }
+
+      if (typeof evt.alpha === 'number' && Number.isFinite(evt.alpha)) {
+        return THREE.MathUtils.degToRad(360 - evt.alpha);
+      }
+
+      return null;
+    };
+
+    const onOrientation = (evt: DeviceOrientationEvent) => {
+      const heading = getHeadingRadians(evt);
+      if (heading === null) return;
+
+      if (initialSensorHeadingRef.current === null) {
+        initialSensorHeadingRef.current = heading;
+        followYawCurrentRef.current = -Math.PI / 2;
+        followYawTargetRef.current = -Math.PI / 2;
+        return;
+      }
+
+      const delta = normalizeAngle(heading - initialSensorHeadingRef.current);
+      followYawTargetRef.current = normalizeAngle(-Math.PI / 2 + delta);
+    };
+
+    window.addEventListener('deviceorientation', onOrientation, true);
+    return () => {
+      window.removeEventListener('deviceorientation', onOrientation, true);
+    };
+  }, [cameraMode]);
 
   // -----------------------------
   // Follow Mode Vertical Camera Adjustment
@@ -284,9 +339,19 @@ export default function MapCanvas() {
 
     const radius = 3.2;
     const targetY = followCameraHeightRef.current;
+    const yawTarget = followYawTargetRef.current;
+    if (yawTarget !== null) {
+      const yawDelta = THREE.MathUtils.euclideanModulo(
+        yawTarget - followYawCurrentRef.current + Math.PI,
+        Math.PI * 2
+      ) - Math.PI;
+      followYawCurrentRef.current += yawDelta * Math.min(1, delta * 6);
+    }
 
-    const targetX = nextPosition[0];
-    const targetZ = nextPosition[2] - radius;
+    const yaw = followYawCurrentRef.current;
+
+    const targetX = nextPosition[0] + Math.cos(yaw) * radius;
+    const targetZ = nextPosition[2] + Math.sin(yaw) * radius;
 
     state.camera.position.set(targetX, targetY, targetZ);
     state.camera.lookAt(nextPosition[0], 1.2, nextPosition[2]);
@@ -323,8 +388,8 @@ export default function MapCanvas() {
       )}
 
       <Suspense fallback={null}>
-        {/* Floor Model (ยกเล็กน้อยตามที่กำหนด) */}
-        <group position={[0, -0.08, 0]}>
+        {/* Floor Model */}
+        <group position={[0, 0, 0]}>
           <FloorModel floor={currentFloor} />
         </group>
 
