@@ -43,12 +43,17 @@ export default function FloorModel({ floor }: { floor: number }) {
   }, [scene]);
 
   return (
-    <group
-      scale={[MODEL_SCALE, MODEL_SCALE, MODEL_SCALE]}
-      rotation={[MODEL_ROTATION_X, MODEL_YAW_OFFSET, 0]}
-      position={[offset.x, offset.y, offset.z]}
-    >
-      <primitive object={model} />
-    </group>
-  );
+      <group
+        scale={[MODEL_SCALE, MODEL_SCALE, MODEL_SCALE]}
+        rotation={[MODEL_ROTATION_X, MODEL_YAW_OFFSET, 0]}
+        position={[offset.x, offset.y, offset.z]}
+        // 👇 เพิ่ม onClick สำหรับหาพิกัดและบอกชั้น 👇
+        onClick={(e) => {
+          e.stopPropagation();
+          console.log(`📍 พิกัด 3D -> X: ${e.point.x.toFixed(2)}, Z: ${e.point.z.toFixed(2)} (ชั้น ${floor})`);
+        }}
+      >
+        <primitive object={model} />
+      </group>
+    );
 }
