@@ -17,6 +17,7 @@ export default function MapCanvas() {
     currentFloor,
     userActualFloor,
     cameraMode,
+    isFollowing,
     userPosition,
     avatarType,
     targetLocation,
@@ -336,8 +337,9 @@ export default function MapCanvas() {
     if (!shouldRenderAvatar) return;
 
     let nextPosition: [number, number, number] = movingPositionRef.current;
+    const shouldMoveToTarget = !isFollowing && targetWorldPosition !== null;
 
-    if (targetWorldPosition) {
+    if (shouldMoveToTarget && targetWorldPosition) {
       const [tx, tz] = targetWorldPosition;
       const dx = tx - nextPosition[0];
       const dz = tz - nextPosition[2];
@@ -352,13 +354,15 @@ export default function MapCanvas() {
         nextPosition = [nx, 0, nz];
         movingPositionRef.current = nextPosition;
       }
-    }
 
-    publishAccumulatorRef.current += delta;
-    const publishStep = 1 / 30;
-    if (publishAccumulatorRef.current >= publishStep) {
+      publishAccumulatorRef.current += delta;
+      const publishStep = 1 / 30;
+      if (publishAccumulatorRef.current >= publishStep) {
+        publishAccumulatorRef.current = 0;
+        setUserPosition(movingPositionRef.current);
+      }
+    } else {
       publishAccumulatorRef.current = 0;
-      setUserPosition(movingPositionRef.current);
     }
 
     const radius = 3.2;
