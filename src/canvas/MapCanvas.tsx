@@ -23,13 +23,14 @@ export default function MapCanvas() {
     setUserPosition,
   } = useNavStore();
 
-  const { gl } = useThree();
+  const { gl, camera } = useThree();
   const movingPositionRef = useRef<[number, number, number]>(userPosition);
   const publishAccumulatorRef = useRef(0);
   const followCameraHeightRef = useRef(1.3);
   const followYawCurrentRef = useRef(-Math.PI / 2);
   const followYawTargetRef = useRef<number | null>(null);
   const initialSensorHeadingRef = useRef<number | null>(null);
+  const lastFocusedFloorRef = useRef<number | null>(null);
 
   // Controls ref to dynamically toggle pan/zoom based on gesture classification
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
@@ -47,6 +48,29 @@ export default function MapCanvas() {
   useEffect(() => {
     movingPositionRef.current = userPosition;
   }, [userPosition]);
+
+  // -----------------------------
+  // Auto Focus Camera after floor selection
+  // -----------------------------
+  useEffect(() => {
+    if (!shouldRenderAvatar || userActualFloor === null) {
+      lastFocusedFloorRef.current = null;
+      return;
+    }
+
+    if (lastFocusedFloorRef.current === userActualFloor) return;
+
+    const [x, , z] = userPosition;
+    camera.position.set(x + 2.8, 2.2, z + 2.8);
+    camera.lookAt(x, 1.1, z);
+
+    if (controlsRef.current) {
+      controlsRef.current.target.set(x, 1, z);
+      controlsRef.current.update();
+    }
+
+    lastFocusedFloorRef.current = userActualFloor;
+  }, [shouldRenderAvatar, userActualFloor, userPosition, camera]);
 
   // -----------------------------
   // Follow Mode Gyroscope Heading (Yaw)
