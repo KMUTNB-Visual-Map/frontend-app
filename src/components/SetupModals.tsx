@@ -2,7 +2,7 @@ import { useNavStore } from '../store/useNavStore';
 import { requestMotionPermission } from '../core/gps';
 
 export default function SetupModals() {
-  const { setupStep, setSetupStep, confirmUserFloor, setAvatarType, avatarType, cancelSetup } = useNavStore();
+  const { setupStep, confirmUserFloor, setAvatarType, cancelSetup } = useNavStore();
 
   // ป้องกันบั๊ก: ถ้า State ว่าง หรือเป็น none ให้ซ่อน Modal ไปเลย
   if (!setupStep || setupStep === 'none') return null;
@@ -23,9 +23,6 @@ export default function SetupModals() {
                 key={floor}
                 onClick={() => {
                   confirmUserFloor(floor);
-                  // ✅ ถ้าเลือก avatar แล้ว ปิด modal เลย (มาจาก search box)
-                  // ถ้ายังไม่เลือก avatar ให้ไปเลือก (initial setup)
-                  setSetupStep(avatarType ? 'none' : 'avatar');
                 }}
                 className="py-3 px-2 bg-white border border-[#E2E8F0] rounded-2xl text-[#2A3547] font-bold hover:bg-slate-50 hover:border-[#CBD5E1] transition-all active:scale-95 shadow-sm"
               >
@@ -53,7 +50,6 @@ export default function SetupModals() {
               onClick={async () => {
                 await requestMotionPermission();
                 setAvatarType('female');
-                setSetupStep('none'); // เลือกเสร็จ ปิด Pop-up
               }}
               className="flex-1 flex flex-col items-center p-4 py-6 bg-white border border-[#E2E8F0] rounded-[24px] hover:bg-slate-50 transition-all active:scale-95 shadow-sm group"
             >
@@ -68,7 +64,6 @@ export default function SetupModals() {
               onClick={async () => {
                 await requestMotionPermission();
                 setAvatarType('male');
-                setSetupStep('none'); // เลือกเสร็จ ปิด Pop-up
               }}
               className="flex-1 flex flex-col items-center p-4 py-6 bg-white border border-[#E2E8F0] rounded-[24px] hover:bg-slate-50 transition-all active:scale-95 shadow-sm group"
             >

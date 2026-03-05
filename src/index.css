@@ -8,7 +8,8 @@ canvas {
 
 /* ล็อกหน้าจอไม่ให้ไหล */
 html, body, #root {
-  fixed: inset-0;
+  position: fixed;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;

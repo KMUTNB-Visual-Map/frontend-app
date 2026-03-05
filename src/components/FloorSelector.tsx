@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavStore } from '../store/useNavStore';
 
 export default function FloorSelector() {
@@ -45,7 +44,7 @@ export default function FloorSelector() {
             className={`w-14 h-14 rounded-2xl shadow-xl font-black transition-all flex items-center justify-center border-2 ${
               isActive 
                 ? '!bg-blue-600 text-white border-blue-400 scale-110 shadow-blue-500/50' 
-                : 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'
+                : 'bg-white text-slate-100 border-transparent hover:bg-slate-200'
             }`}
           >
             <span className="text-2xl relative z-10">{f}</span>

@@ -37,7 +37,7 @@ export default function MapCanvas() {
   // -----------------------------
   // Avatar Render Condition
   // -----------------------------
-  const selectedFloor = userActualFloor ?? targetLocation?.floor ?? null;
+  const selectedFloor = userActualFloor;
 
   const shouldRenderAvatar =
     selectedFloor !== null &&
