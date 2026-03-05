@@ -9,6 +9,7 @@ export default function SetupModals() {
 
   return (
     // ถอด animate-in ออกทั้งหมดเพื่อให้กล่องโชว์ชัวร์ๆ 100%
+        // ถอด animate-in ออกทั้งหมดเพื่อให้กล่องโชว์ชัวร์ๆ 100%
     <div className="fixed inset-0 bg-[#1A202C]/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 pointer-events-auto">
       
       {/* 🟢 STEP 1: Modal ถามชั้น (ตรงตามภาพเป๊ะ) */}

@@ -6,7 +6,7 @@ export default function GPSButton() {
   const toggleFollowing = useNavStore((state) => state.toggleFollowing);
 
   const baseButton = 'px-5 py-3 rounded-xl shadow-2xl transition-all active:scale-95 pointer-events-auto flex items-center justify-center border-2 font-black text-sm fixed bottom-6 left-6 z-[9999]';
-
+   // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
   return (
     <button
       onClick={() => {

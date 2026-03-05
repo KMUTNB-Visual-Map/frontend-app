@@ -23,7 +23,7 @@ export default function SearchBox() {
 
 const suggestions = useMemo<Landmark[]>(() => {
   const trimmedQuery = query.trim().toLowerCase();
-  
+  // 1. กรองเฉพาะ 
   // 1. กรองเฉพาะ Type ที่เราต้องการก่อน (elevator, room, stair)
   const filteredByType = LANDMARKS_DATA.filter(loc => 
     ALLOWED_TYPES.includes(loc.type.toLowerCase())
