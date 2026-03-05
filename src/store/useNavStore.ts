@@ -134,6 +134,7 @@ export const useNavStore = create<NavState>((set, get) => ({
     const newState = !get().isFollowing;
 
     if (newState) {
+      const selectedUserFloor = get().userActualFloor;
       gpsOrigin = null;
       startDeadzoneUnlocked = false;
 
@@ -141,6 +142,7 @@ export const useNavStore = create<NavState>((set, get) => ({
         userPosition: [0, 0, 0],
         rawGpsPosition: null,
         convertedGpsMeters: null,
+        currentFloor: selectedUserFloor ?? get().currentFloor,
         isFollowing: true,
         cameraMode: 'FOLLOW',
       });
@@ -180,7 +182,7 @@ export const useNavStore = create<NavState>((set, get) => ({
             : [0, 0, 0],
           rawGpsPosition: [pos.x, pos.y],
           convertedGpsMeters: [convertedX, convertedZ],
-          userActualFloor: pos.floor_id ?? get().userActualFloor,
+          userActualFloor: get().userActualFloor,
         });
 
         // ===============================
