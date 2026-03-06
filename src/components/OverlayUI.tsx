@@ -1,15 +1,63 @@
-import React from 'react';
 import SearchBox from './SearchBox';
 import FloorSelector from './FloorSelector';
 import SetupModals from './SetupModals'; 
-import { useNavStore } from '../store/useNavStore';
-
+import { getThirdPointCalibrationCheck, useNavStore } from '../store/useNavStore';
+   // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
 export default function OverlayUI() {
-  const { isFollowing, toggleFollowing, cameraMode, cycleCameraMode } = useNavStore();
+  const {
+    isFollowing,
+    toggleFollowing,
+    cameraMode,
+    cycleCameraMode,
+    userPosition,
+    rawGpsPosition,
+    convertedGpsMeters,
+    currentFloor,
+    currentFloorMetrics,
+  } = useNavStore();
+
+  const [userX, , userZ] = userPosition;
+  const rawLat = rawGpsPosition?.[0];
+  const rawLng = rawGpsPosition?.[1];
+  const absX = convertedGpsMeters?.[0];
+  const absZ = convertedGpsMeters?.[1];
+  const thirdPointCheck = getThirdPointCalibrationCheck();
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[999] p-6 flex flex-col justify-between">
       <SetupModals />
+
+      <div className="absolute top-6 right-6 pointer-events-none z-[1001]">
+        <div className="bg-black/90 px-3 py-2 rounded-xl text-xs text-white font-bold backdrop-blur-sm">
+          <div className="text-[10px] text-blue-300">RAW (Lat/Lng)</div>
+          <div>Lat: {rawLat !== undefined ? rawLat.toFixed(6) : '-'}</div>
+          <div>Lng: {rawLng !== undefined ? rawLng.toFixed(6) : '-'}</div>
+          <div className="mt-2 text-[10px] text-emerald-300">CONVERTED ABS (m)</div>
+          <div>X: {absX !== undefined ? absX.toFixed(2) : '-'}</div>
+          <div>Z: {absZ !== undefined ? absZ.toFixed(2) : '-'}</div>
+          <div className="mt-2 text-[10px] text-amber-300">DELTA FROM START (m)</div>
+          <div>X: {userX.toFixed(2)}</div>
+          <div>Z: {userZ.toFixed(2)}</div>
+
+          <div className="mt-2 text-[10px] text-fuchsia-300">FLOOR SIZE (scaled units)</div>
+          <div>Floor: {currentFloor}</div>
+          <div>
+            Width X: {currentFloorMetrics?.floor === currentFloor ? currentFloorMetrics.width.toFixed(2) : '-'}
+          </div>
+          <div>
+            Depth Z: {currentFloorMetrics?.floor === currentFloor ? currentFloorMetrics.depth.toFixed(2) : '-'}
+          </div>
+          <div>
+            Area X*Z: {currentFloorMetrics?.floor === currentFloor ? currentFloorMetrics.area.toFixed(2) : '-'}
+          </div>
+
+          <div className="mt-2 text-[10px] text-cyan-300">CALIBRATION CHECK (POINT #3)</div>
+          <div>Expected X,Y: {thirdPointCheck.expected.x.toFixed(2)}, {thirdPointCheck.expected.y.toFixed(2)}</div>
+          <div>Predicted X,Y: {thirdPointCheck.predicted.x.toFixed(2)}, {thirdPointCheck.predicted.y.toFixed(2)}</div>
+          <div>Error X,Y: {thirdPointCheck.errorX.toFixed(3)}, {thirdPointCheck.errorY.toFixed(3)}</div>
+          <div>Total Error: {thirdPointCheck.errorDistance.toFixed(3)}</div>
+        </div>
+      </div>
 
       <div className="flex justify-center w-full pointer-events-auto">
         <SearchBox />

@@ -6,6 +6,7 @@ import { useNavStore } from '../store/useNavStore';
 function AvatarModel({ type }) {
   const { userPosition, isFollowing } = useNavStore();
   const group = useRef(null); // ไร้คราบ TypeScript แน่นอนครับ
+  const avatarPosition = [userPosition[0], userPosition[1] + 0.12, userPosition[2]];
 
   // 1. โหลดไฟล์ 3D ทั้งหมด (เพิ่มไฟล์เดินของผู้ชายแล้ว)
   const femaleIdle = useGLTF('/models/women_idle.glb');
@@ -39,7 +40,7 @@ function AvatarModel({ type }) {
   }, [actions, names, currentModel]);
 
   return (
-    <group ref={group} position={userPosition} scale={[1, 1, 1]}>
+    <group ref={group} position={avatarPosition} scale={[1, 1, 1]}>
       {/* ใส่ key บังคับโหลดใหม่เวลาสลับโมเดล ป้องกันการซ้อนทับ */}
       <primitive object={currentModel.scene} key={currentModel.scene.uuid} />
     </group>

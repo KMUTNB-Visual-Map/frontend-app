@@ -1,10 +1,9 @@
-import React from 'react';
 import { useNavStore } from '../store/useNavStore';
 
 export default function FloorSelector() {
   const { 
     currentFloor, 
-    setFloor, 
+    setFloor,
     userId, // ✅ เปลี่ยนจาก guestId เป็น userId ให้ตรงกับ Store ตัวล่าสุด
     userPosition, 
     targetLocation 
@@ -25,7 +24,7 @@ export default function FloorSelector() {
               console.log("Floor Selected:", f);
               console.log("User ID (Guest):", userId); // ✅ จะไม่ undefined แล้ว
               console.log("Current User Position (3D):", userPosition);
-              
+              // --- 📊 ส่วนของ Log สำหรับเช็คการทำงาน ---
               // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
               if (targetLocation) {
                 console.log("Target Destination:", {
@@ -39,13 +38,13 @@ export default function FloorSelector() {
               }
               console.log("----------------------------------");
               
-              // สั่งเปลี่ยนชั้นในระบบ 3D
+              // เปลี่ยนชั้นที่กำลังดู (ไม่กระทบชั้นจริง)
               setFloor(f);
             }}
             className={`w-14 h-14 rounded-2xl shadow-xl font-black transition-all flex items-center justify-center border-2 ${
               isActive 
                 ? '!bg-blue-600 text-white border-blue-400 scale-110 shadow-blue-500/50' 
-                : 'bg-white text-slate-800 border-transparent hover:bg-slate-100'
+                : 'bg-white text-slate-800 border-transparent hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
             <span className="text-2xl relative z-10">{f}</span>

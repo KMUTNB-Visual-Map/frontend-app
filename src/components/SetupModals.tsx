@@ -1,14 +1,15 @@
-import React from 'react';
 import { useNavStore } from '../store/useNavStore';
+import { requestMotionPermission } from '../core/gps';
 
 export default function SetupModals() {
-  const { setupStep, setSetupStep, setFloor, setAvatarType, cancelSetup } = useNavStore();
+  const { setupStep, confirmUserFloor, setAvatarType, cancelSetup } = useNavStore();
 
   // ป้องกันบั๊ก: ถ้า State ว่าง หรือเป็น none ให้ซ่อน Modal ไปเลย
   if (!setupStep || setupStep === 'none') return null;
 
   return (
     // ถอด animate-in ออกทั้งหมดเพื่อให้กล่องโชว์ชัวร์ๆ 100%
+        // ถอด animate-in ออกทั้งหมดเพื่อให้กล่องโชว์ชัวร์ๆ 100%
     <div className="fixed inset-0 bg-[#1A202C]/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 pointer-events-auto">
       
       {/* 🟢 STEP 1: Modal ถามชั้น (ตรงตามภาพเป๊ะ) */}
@@ -22,8 +23,7 @@ export default function SetupModals() {
               <button 
                 key={floor}
                 onClick={() => {
-                  setFloor(floor);
-                  setSetupStep('avatar'); // กดปุ๊บ ไปเลือกตัวละครต่อ
+                  confirmUserFloor(floor);
                 }}
                 className="py-3 px-2 bg-white border border-[#E2E8F0] rounded-2xl text-[#2A3547] font-bold hover:bg-slate-50 hover:border-[#CBD5E1] transition-all active:scale-95 shadow-sm"
               >
@@ -48,9 +48,9 @@ export default function SetupModals() {
             
             {/* ปุ่มนักเรียนหญิง */}
             <button 
-              onClick={() => {
+              onClick={async () => {
+                await requestMotionPermission();
                 setAvatarType('female');
-                setSetupStep('none'); // เลือกเสร็จ ปิด Pop-up
               }}
               className="flex-1 flex flex-col items-center p-4 py-6 bg-white border border-[#E2E8F0] rounded-[24px] hover:bg-slate-50 transition-all active:scale-95 shadow-sm group"
             >
@@ -62,9 +62,9 @@ export default function SetupModals() {
 
             {/* ปุ่มนักเรียนชาย */}
             <button 
-              onClick={() => {
+              onClick={async () => {
+                await requestMotionPermission();
                 setAvatarType('male');
-                setSetupStep('none'); // เลือกเสร็จ ปิด Pop-up
               }}
               className="flex-1 flex flex-col items-center p-4 py-6 bg-white border border-[#E2E8F0] rounded-[24px] hover:bg-slate-50 transition-all active:scale-95 shadow-sm group"
             >
