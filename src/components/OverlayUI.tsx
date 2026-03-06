@@ -2,7 +2,7 @@ import SearchBox from './SearchBox';
 import FloorSelector from './FloorSelector';
 import SetupModals from './SetupModals'; 
 import { useNavStore } from '../store/useNavStore';
-
+   // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
 export default function OverlayUI() {
   const {
     isFollowing,

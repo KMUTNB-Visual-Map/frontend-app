@@ -24,7 +24,7 @@ export default function FloorSelector() {
               console.log("Floor Selected:", f);
               console.log("User ID (Guest):", userId); // ✅ จะไม่ undefined แล้ว
               console.log("Current User Position (3D):", userPosition);
-              
+              // --- 📊 ส่วนของ Log สำหรับเช็คการทำงาน ---
               // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
               if (targetLocation) {
                 console.log("Target Destination:", {
