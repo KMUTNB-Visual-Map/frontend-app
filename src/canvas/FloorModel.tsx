@@ -10,7 +10,7 @@ const MODEL_ROTATION_X = 0;
 
 // Map north calibration (yaw around Y axis).
 // Example: THREE.MathUtils.degToRad(12) to rotate 12 degrees.
-const MODEL_YAW_OFFSET = THREE.MathUtils.degToRad(-56.97);
+const MODEL_YAW_OFFSET = THREE.MathUtils.degToRad(-48.72);
 
 export default function FloorModel({ floor }: { floor: number }) {
   const { scene } = useGLTF(`/models/archif${floor}.glb`);
