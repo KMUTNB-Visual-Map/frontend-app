@@ -2,13 +2,16 @@ import { create } from 'zustand';
 import { PositioningManager } from '../core/positioning';
 
 let positioning: PositioningManager | null = null;
-let mapOrigin: { x: number, y: number } | null = null;
-let startDeadzoneUnlocked = false;
 let mockTrackingTimer: ReturnType<typeof setInterval> | null = null;
+let mockTrackingSessionToken = 0;
 
 const USE_MOCK_TRACKING = false;  ////////debug mock location
 const MOCK_TRACKING_INTERVAL_MS = 1000;
 const AUTO_SWITCH_FLOOR_FROM_TRACKING = false;
+
+type TrackingSource = 'gps' | 'mock' | 'none';
+const DEFAULT_TRACKING_SOURCE: Exclude<TrackingSource, 'none'> =
+  USE_MOCK_TRACKING ? 'mock' : 'gps';
 
 interface CalibrationPoint {
   lat: number;
@@ -17,42 +20,79 @@ interface CalibrationPoint {
   y: number;
 }
 
-// GPS -> map calibration from two known points (lat, lon -> map x, y)
-export const GPS_CALIBRATION_A: CalibrationPoint = {
-  lat: 13.821299857933113,
-  lon: 100.51370531178664,
-  x: 20.05,
-  y: 110.75,
+// Centralized calibration/config section.
+const MAP_CALIBRATION_CONFIG = {
+  // Rotation angle for map alignment (degrees).
+  MAP_ROTATION_DEG: 145,
+
+  // Scale from map units (meters) to world units.
+  WORLD_SCALE: 0.1,
+
+  // GPS -> map reference points.
+  ORIGIN_A: {
+    lat: 13.821299857933113,
+    lon: 100.51370531178664,
+    x: 20.05,
+    y: 110.75,
+  } as CalibrationPoint,
+  ORIGIN_B: {
+    lat: 13.821127,
+    lon: 100.513257,
+    x: 8.05,
+    y: 58.75,
+  } as CalibrationPoint,
+
+  // Validation checkpoint for calibration quality.
+  CHECK_POINT: {
+    lat: 13.821213428966557,
+    lon: 100.51348115589333,
+    x: 14.05,
+    y: 84.75,
+  } as CalibrationPoint,
 };
 
-export const GPS_CALIBRATION_B: CalibrationPoint = {
-  lat: 13.821127,
-  lon: 100.513257,
-  x: 8.05,
-  y: 58.75,
-};
-
-export const GPS_CALIBRATION_CHECK_POINT: CalibrationPoint = {
-  lat: 13.821213428966557,
-  lon: 100.51348115589333,
-  x: 14.05,
-  y: 84.75,
-};
+export const MAP_ROTATION_DEG = MAP_CALIBRATION_CONFIG.MAP_ROTATION_DEG;
+export const GPS_CALIBRATION_A = MAP_CALIBRATION_CONFIG.ORIGIN_A;
+export const GPS_CALIBRATION_B = MAP_CALIBRATION_CONFIG.ORIGIN_B;
+export const GPS_CALIBRATION_CHECK_POINT = MAP_CALIBRATION_CONFIG.CHECK_POINT;
 
 const MAP_X_PER_LON =
-  (GPS_CALIBRATION_B.x - GPS_CALIBRATION_A.x) /
-  (GPS_CALIBRATION_B.lon - GPS_CALIBRATION_A.lon);
+  (MAP_CALIBRATION_CONFIG.ORIGIN_B.x - MAP_CALIBRATION_CONFIG.ORIGIN_A.x) /
+  (MAP_CALIBRATION_CONFIG.ORIGIN_B.lon - MAP_CALIBRATION_CONFIG.ORIGIN_A.lon);
 
 const MAP_Y_PER_LAT =
-  (GPS_CALIBRATION_B.y - GPS_CALIBRATION_A.y) /
-  (GPS_CALIBRATION_B.lat - GPS_CALIBRATION_A.lat);
+  (MAP_CALIBRATION_CONFIG.ORIGIN_B.y - MAP_CALIBRATION_CONFIG.ORIGIN_A.y) /
+  (MAP_CALIBRATION_CONFIG.ORIGIN_B.lat - MAP_CALIBRATION_CONFIG.ORIGIN_A.lat);
 
-const WORLD_UNITS_PER_METER = 0.1;
-const START_DEADZONE_METERS = 1;
+const theta = (MAP_ROTATION_DEG * Math.PI) / 180;
+const cosTheta = Math.cos(theta);
+const sinTheta = Math.sin(theta);
+
+function rotateMapXY(x: number, y: number) {
+  const xRot = x * cosTheta - y * sinTheta;
+  const yRot = x * sinTheta + y * cosTheta;
+
+  return { x: xRot, y: yRot };
+}
+
+function mapToWorldXZ(x: number, y: number) {
+  const rotated = rotateMapXY(x, y);
+
+  return {
+    worldX: rotated.x * MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+    worldZ: rotated.y * MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+    xRot: rotated.x,
+    yRot: rotated.y,
+  };
+}
 
 export function gpsToMapXY(lat: number, lon: number) {
-  const x = GPS_CALIBRATION_A.x + (lon - GPS_CALIBRATION_A.lon) * MAP_X_PER_LON;
-  const y = GPS_CALIBRATION_A.y + (lat - GPS_CALIBRATION_A.lat) * MAP_Y_PER_LAT;
+  const x =
+    MAP_CALIBRATION_CONFIG.ORIGIN_A.x +
+    (lon - MAP_CALIBRATION_CONFIG.ORIGIN_A.lon) * MAP_X_PER_LON;
+  const y =
+    MAP_CALIBRATION_CONFIG.ORIGIN_A.y +
+    (lat - MAP_CALIBRATION_CONFIG.ORIGIN_A.lat) * MAP_Y_PER_LAT;
 
   return { x, y };
 }
@@ -92,8 +132,8 @@ interface GpsPosition {
 }
 
 interface MockMapPosition {
-  x: number;
-  y: number;
+  lat: number;
+  lon: number;
   floor_id?: number;
 }
 
@@ -128,6 +168,8 @@ interface NavState {
 
   cameraMode: 'FREE' | 'FOLLOW';
   isFollowing: boolean;
+  trackingSource: TrackingSource;
+  preferredTrackingSource: Exclude<TrackingSource, 'none'>;
 
   setupStep: string | null;
   avatarType: 'female' | 'male' | null;
@@ -140,13 +182,148 @@ interface NavState {
   setTarget: (location: TargetLocation | null) => void;
   setUserPosition: (position: [number, number, number]) => void;
   toggleFollowing: () => void;
+  switchTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
+  setPreferredTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
   cycleCameraMode: () => void;
   setUserActualFloor: (floor: number) => void;
   setCurrentFloorMetrics: (metrics: FloorMetrics) => void;
   cancelSetup: () => void;
 }
 
-export const useNavStore = create<NavState>((set, get) => ({
+export const useNavStore = create<NavState>((set, get) => {
+  const clearTrackingSourceRuntime = () => {
+    mockTrackingSessionToken += 1;
+    clearMockTrackingTimer();
+
+    if (positioning) {
+      positioning.startManualMode();
+    }
+  };
+
+  const applyTrackingPosition = (
+    lat: number,
+    lon: number,
+    floorId: number | undefined,
+    source: Exclude<TrackingSource, 'none'>
+  ) => {
+    const state = get();
+    if (!state.isFollowing) return;
+    if (state.trackingSource !== source) return;
+
+    const mapped = gpsToMapXY(lat, lon);
+    const transformed = mapToWorldXZ(mapped.x, mapped.y);
+
+    const shouldSyncFloor =
+      AUTO_SWITCH_FLOOR_FROM_TRACKING && typeof floorId === 'number';
+
+    set({
+      userPosition: [transformed.worldX, 0, transformed.worldZ],
+      rawGpsPosition: [lat, lon],
+      convertedGpsMeters: [transformed.xRot, transformed.yRot],
+      userActualFloor: shouldSyncFloor ? floorId : get().userActualFloor,
+      currentFloor: shouldSyncFloor ? floorId : get().currentFloor,
+    });
+  };
+
+  const startGpsTracking = (): boolean => {
+    if (!positioning) {
+      return false;
+    }
+
+    const started = positioning.startGPSMode((pos: GpsPosition) => {
+      applyTrackingPosition(pos.x, pos.y, pos.floor_id, 'gps');
+    });
+
+    if (!started) {
+      return false;
+    }
+
+    set({
+      isFollowing: true,
+      cameraMode: 'FOLLOW',
+      trackingSource: 'gps',
+    });
+
+    return true;
+  };
+
+  const startMockTracking = async (): Promise<boolean> => {
+    const sessionToken = ++mockTrackingSessionToken;
+
+    try {
+      const response = await fetch('/mock-user-path.json');
+      if (!response.ok) {
+        throw new Error(`Unable to load mock path (${response.status})`);
+      }
+
+      const path = (await response.json()) as MockMapPosition[];
+      if (!Array.isArray(path) || path.length === 0) {
+        throw new Error('Mock path file is empty');
+      }
+
+      // Source changed while loading, abort startup.
+      if (sessionToken !== mockTrackingSessionToken) {
+        return false;
+      }
+
+      set({
+        isFollowing: true,
+        cameraMode: 'FOLLOW',
+        trackingSource: 'mock',
+      });
+
+      let pathIndex = 0;
+      const applyCurrentPoint = () => {
+        const point = path[pathIndex];
+        applyTrackingPosition(point.lat, point.lon, point.floor_id, 'mock');
+      };
+
+      applyCurrentPoint();
+
+      mockTrackingTimer = setInterval(() => {
+        const state = get();
+        if (
+          !state.isFollowing ||
+          state.trackingSource !== 'mock' ||
+          sessionToken !== mockTrackingSessionToken
+        ) {
+          clearMockTrackingTimer();
+          return;
+        }
+
+        pathIndex = (pathIndex + 1) % path.length;
+        applyCurrentPoint();
+      }, MOCK_TRACKING_INTERVAL_MS);
+
+      return true;
+    } catch (error) {
+      console.error('Failed to start JSON tracking:', error);
+      return false;
+    }
+  };
+
+  const startTrackingBySource = async (
+    source: Exclude<TrackingSource, 'none'>
+  ): Promise<boolean> => {
+    const selectedUserFloor = get().userActualFloor;
+
+    set({
+      userPosition: [0, 0, 0],
+      rawGpsPosition: null,
+      convertedGpsMeters: null,
+      currentFloor: selectedUserFloor ?? get().currentFloor,
+      isFollowing: false,
+      trackingSource: source,
+    });
+
+    if (source === 'gps') {
+      return startGpsTracking();
+    }
+
+    return startMockTracking();
+  };
+
+  return ({
   userId: null,
 
   currentFloor: 1,
@@ -160,6 +337,8 @@ export const useNavStore = create<NavState>((set, get) => ({
 
   cameraMode: 'FREE',
   isFollowing: false,
+  trackingSource: 'none',
+  preferredTrackingSource: DEFAULT_TRACKING_SOURCE,
 
   setupStep: 'avatar',
   avatarType: null,
@@ -216,6 +395,34 @@ export const useNavStore = create<NavState>((set, get) => ({
 
   setUserPosition: (position) => set({ userPosition: position }),
 
+  setPreferredTrackingSource: (source) => {
+    set({ preferredTrackingSource: source });
+  },
+
+  switchTrackingSource: (source) => {
+    set({ preferredTrackingSource: source });
+
+    if (!get().isFollowing) {
+      return;
+    }
+
+    void (async () => {
+      clearTrackingSourceRuntime();
+
+      const started = await startTrackingBySource(source);
+      if (!started) {
+        clearTrackingSourceRuntime();
+        set({
+          isFollowing: false,
+          trackingSource: 'none',
+          cameraMode: 'FREE',
+          rawGpsPosition: null,
+          convertedGpsMeters: null,
+        });
+      }
+    })();
+  },
+
   cycleCameraMode: () => {
     const current = get().cameraMode;
     set({ cameraMode: current === 'FREE' ? 'FOLLOW' : 'FREE' });
@@ -225,124 +432,33 @@ export const useNavStore = create<NavState>((set, get) => ({
     const newState = !get().isFollowing;
 
     if (newState) {
-      const selectedUserFloor = get().userActualFloor;
-      mapOrigin = null;
-      startDeadzoneUnlocked = false;
-      clearMockTrackingTimer();
+      const requestedSource = get().preferredTrackingSource;
 
-      set({
-        userPosition: [0, 0, 0],
-        rawGpsPosition: null,
-        convertedGpsMeters: null,
-        currentFloor: selectedUserFloor ?? get().currentFloor,
-        isFollowing: true,
-        cameraMode: 'FOLLOW',
-      });
+      void (async () => {
+        clearTrackingSourceRuntime();
 
-      const applyGpsPosition = (pos: GpsPosition) => {
-        const mapped = gpsToMapXY(pos.x, pos.y);
-
-        // Set origin once from first mapped point.
-        if (!mapOrigin) {
-          mapOrigin = { x: mapped.x, y: mapped.y };
+        const started = await startTrackingBySource(requestedSource);
+        if (!started) {
+          clearTrackingSourceRuntime();
+          set({
+            isFollowing: false,
+            trackingSource: 'none',
+            cameraMode: 'FREE',
+            rawGpsPosition: null,
+            convertedGpsMeters: null,
+          });
         }
-
-        const relativeX = mapped.x - mapOrigin.x;
-        const relativeZ = mapped.y - mapOrigin.y;
-        const distanceFromStart = Math.hypot(relativeX, relativeZ);
-
-        if (!startDeadzoneUnlocked && distanceFromStart > START_DEADZONE_METERS) {
-          startDeadzoneUnlocked = true;
-        }
-
-        const convertedX = mapped.x;
-        const convertedZ = mapped.y;
-
-        const worldX = relativeX * WORLD_UNITS_PER_METER;
-        const worldZ = relativeZ * WORLD_UNITS_PER_METER;
-
-        const shouldSyncFloor =
-          AUTO_SWITCH_FLOOR_FROM_TRACKING && typeof pos.floor_id === 'number';
-
-        set({
-          userPosition: startDeadzoneUnlocked ? [worldX, 0, worldZ] : [0, 0, 0],
-          rawGpsPosition: [pos.x, pos.y],
-          convertedGpsMeters: [convertedX, convertedZ],
-          userActualFloor: shouldSyncFloor ? (pos.floor_id as number) : get().userActualFloor,
-          currentFloor: shouldSyncFloor ? (pos.floor_id as number) : get().currentFloor,
-        });
-      };
-
-      const applyMockMapPosition = (pos: MockMapPosition) => {
-        // Mock file values are already converted map meters.
-        const worldX = pos.x * WORLD_UNITS_PER_METER;
-        const worldZ = pos.y * WORLD_UNITS_PER_METER;
-
-        const shouldSyncFloor =
-          AUTO_SWITCH_FLOOR_FROM_TRACKING && typeof pos.floor_id === 'number';
-
-        set({
-          userPosition: [worldX, 0, worldZ],
-          rawGpsPosition: null,
-          convertedGpsMeters: [pos.x, pos.y],
-          userActualFloor: shouldSyncFloor ? (pos.floor_id as number) : get().userActualFloor,
-          currentFloor: shouldSyncFloor ? (pos.floor_id as number) : get().currentFloor,
-        });
-      };
-
-      if (USE_MOCK_TRACKING) {
-        void (async () => {
-          try {
-            const response = await fetch('/mock-user-path.json');
-            if (!response.ok) {
-              throw new Error(`Unable to load mock path (${response.status})`);
-            }
-
-            const path = (await response.json()) as MockMapPosition[];
-            if (!Array.isArray(path) || path.length === 0) {
-              throw new Error('Mock path file is empty');
-            }
-
-            let pathIndex = 0;
-            applyMockMapPosition(path[pathIndex]);
-
-            mockTrackingTimer = setInterval(() => {
-              if (!get().isFollowing) {
-                clearMockTrackingTimer();
-                return;
-              }
-
-              pathIndex = (pathIndex + 1) % path.length;
-              applyMockMapPosition(path[pathIndex]);
-            }, MOCK_TRACKING_INTERVAL_MS);
-          } catch (error) {
-            console.error('Failed to start JSON tracking:', error);
-            set({ isFollowing: false, cameraMode: 'FREE' });
-            clearMockTrackingTimer();
-          }
-        })();
-      } else {
-        if (!positioning) return;
-
-        positioning.startGPSMode((pos: GpsPosition) => {
-          applyGpsPosition(pos);
-        });
-      }
+      })();
     } else {
+      clearTrackingSourceRuntime();
       set({
         isFollowing: false,
+        trackingSource: 'none',
         cameraMode: 'FREE',
         rawGpsPosition: null,
         convertedGpsMeters: null,
       });
-
-      mapOrigin = null;
-      startDeadzoneUnlocked = false;
-      clearMockTrackingTimer();
-
-      if (positioning) {
-        positioning.startManualMode();
-      }
     }
   },
-}));
+  });
+});

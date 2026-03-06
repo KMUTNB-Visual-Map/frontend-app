@@ -18,7 +18,13 @@ export class PositioningManager {
   }
 
   private readonly gpsUpdateIntervalMs = 2000;
+  private readonly maxAcceptedGpsAccuracyMeters = 20;
+  private readonly gpsSmoothingWindowSize = 5;
   private lastGpsUpdateAt = 0;
+  private activeGpsWatchId: number | null = null;
+  private stopGpsWatch: (() => void) | null = null;
+  private gpsSessionToken = 0;
+  private gpsRecentSamples: Array<{ x: number; y: number }> = [];
 
   private mode: PositionMode = "GPS";
 
@@ -98,6 +104,7 @@ export class PositioningManager {
   ======================= */
 
   startManualMode() {
+    this.stopGPSMode();
     this.mode = "MANUAL";
   }
 
@@ -124,20 +131,53 @@ export class PositioningManager {
      GPS Mode
   ======================= */
 
-  startGPSMode(onUpdate: (pos: Position) => void) {
+  startGPSMode(onUpdate: (pos: Position) => void): boolean {
+    this.stopGPSMode();
     this.mode = "GPS";
     this.lastGpsUpdateAt = 0;
+    this.gpsRecentSamples = [];
+    const sessionToken = ++this.gpsSessionToken;
 
-    startGPS((gpsPos) => {
+    const watchHandle = startGPS((gpsPos) => {
+      if (this.mode !== "GPS") {
+        return;
+      }
+
+      if (sessionToken !== this.gpsSessionToken) {
+        return;
+      }
+
+      if (!Number.isFinite(gpsPos.accuracy) || gpsPos.accuracy > this.maxAcceptedGpsAccuracyMeters) {
+        return;
+      }
+
       const now = Date.now();
       if (now - this.lastGpsUpdateAt < this.gpsUpdateIntervalMs) {
         return;
       }
       this.lastGpsUpdateAt = now;
 
+      this.gpsRecentSamples.push({ x: gpsPos.x, y: gpsPos.y });
+      if (this.gpsRecentSamples.length > this.gpsSmoothingWindowSize) {
+        this.gpsRecentSamples.shift();
+      }
+
+      const smoothed = this.gpsRecentSamples.reduce(
+        (acc, sample) => {
+          acc.x += sample.x;
+          acc.y += sample.y;
+          return acc;
+        },
+        { x: 0, y: 0 }
+      );
+
+      const sampleCount = this.gpsRecentSamples.length;
+      const smoothedX = smoothed.x / sampleCount;
+      const smoothedY = smoothed.y / sampleCount;
+
       const position: Position = {
-        x: gpsPos.x,
-        y: gpsPos.y,
+        x: smoothedX,
+        y: smoothedY,
         floor_id: 1,
       };
 
@@ -156,6 +196,33 @@ export class PositioningManager {
       this.checkArrival();
       onUpdate(position);
     });
+
+    if (!watchHandle) {
+      this.mode = "MANUAL";
+      return false;
+    }
+
+    this.activeGpsWatchId = watchHandle.watchId;
+    this.stopGpsWatch = watchHandle.stop;
+    return true;
+  }
+
+  stopGPSMode() {
+    this.gpsSessionToken += 1;
+    this.gpsRecentSamples = [];
+
+    if (this.stopGpsWatch) {
+      this.stopGpsWatch();
+      this.stopGpsWatch = null;
+      this.activeGpsWatchId = null;
+      return;
+    }
+
+    if (this.activeGpsWatchId !== null && "geolocation" in navigator) {
+      navigator.geolocation.clearWatch(this.activeGpsWatchId);
+    }
+
+    this.activeGpsWatchId = null;
   }
 
   /* =======================

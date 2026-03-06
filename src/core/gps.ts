@@ -1,18 +1,27 @@
+export interface GPSWatchHandle {
+  watchId: number;
+  stop: () => void;
+}
+
+export interface GPSRawUpdate {
+  x: number;
+  y: number;
+  accuracy: number;
+}
+
 export function startGPS(
-  onUpdate: (position: {
-    x: number;
-    y: number;
-  }) => void
-) {
+  onUpdate: (position: GPSRawUpdate) => void
+): GPSWatchHandle | null {
   if (!("geolocation" in navigator)) {
     console.error("Geolocation not supported");
-    return;
+    return null;
   }
 
-  navigator.geolocation.watchPosition(
+  const watchId = navigator.geolocation.watchPosition(
     (pos) => {
       const latitude = pos.coords.latitude;
       const longitude = pos.coords.longitude;
+      const accuracy = pos.coords.accuracy;
 
       console.log("GPS:", latitude, longitude);
 
@@ -20,6 +29,7 @@ export function startGPS(
       onUpdate({
         x: latitude,
         y: longitude,
+        accuracy,
       });
     },
     (err) => {
@@ -31,6 +41,13 @@ export function startGPS(
       timeout: 10000,
     }
   );
+
+  return {
+    watchId,
+    stop: () => {
+      navigator.geolocation.clearWatch(watchId);
+    },
+  };
 }
 
 // Request only motion/gyro permission (iOS requires user gesture).
