@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   OrbitControls,
   PerspectiveCamera,
@@ -22,6 +22,7 @@ export default function MapCanvas() {
     avatarType,
     targetLocation,
     setUserPosition,
+    setCurrentFloorMetrics,
   } = useNavStore();
 
   const { gl, camera } = useThree();
@@ -200,6 +201,13 @@ export default function MapCanvas() {
 
     return null;
   }, [targetLocation]);
+
+  const handleFloorMetrics = useCallback(
+    (metrics: { width: number; depth: number; area: number; scale: number }) => {
+      setCurrentFloorMetrics({ floor: currentFloor, ...metrics });
+    },
+    [currentFloor, setCurrentFloorMetrics]
+  );
 
   // -----------------------------
   // Touch Gesture Lock (mutually exclusive pan vs zoom)
@@ -418,7 +426,7 @@ export default function MapCanvas() {
       <Suspense fallback={null}>
         {/* Floor Model */}
         <group position={[0, 0, 0]}>
-          <FloorModel floor={currentFloor} />
+          <FloorModel floor={currentFloor} onMetricsComputed={handleFloorMetrics} />
         </group>
 
         {/* Avatar render เฉพาะตอน floor ตรงกัน */}

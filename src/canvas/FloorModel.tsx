@@ -1,4 +1,5 @@
 import { useGLTF } from '@react-three/drei';
+import { useEffect } from 'react';
 import { useMemo } from 'react';
 import * as THREE from 'three';
 
@@ -10,12 +11,24 @@ const MODEL_ROTATION_X = 0;
 
 // Map north calibration (yaw around Y axis).
 // Example: THREE.MathUtils.degToRad(12) to rotate 12 degrees.
-const MODEL_YAW_OFFSET = THREE.MathUtils.degToRad(-48.72);
+const MODEL_YAW_OFFSET = THREE.MathUtils.degToRad(-8);
 
-export default function FloorModel({ floor }: { floor: number }) {
+export interface FloorRenderMetrics {
+  width: number;
+  depth: number;
+  area: number;
+  scale: number;
+}
+
+interface FloorModelProps {
+  floor: number;
+  onMetricsComputed?: (metrics: FloorRenderMetrics) => void;
+}
+
+export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps) {
   const { scene } = useGLTF(`/models/archif${floor}.glb`);
 
-  const { model, offset } = useMemo(() => {
+  const { model, offset, metrics } = useMemo(() => {
     const cloned = scene.clone(true);
 
     cloned.traverse((obj) => {
@@ -29,6 +42,13 @@ export default function FloorModel({ floor }: { floor: number }) {
     const tempRoot = new THREE.Group();
     tempRoot.add(cloned);
     tempRoot.scale.setScalar(MODEL_SCALE);
+
+    // Measure scaled planar footprint before yaw rotation for stable size readout.
+    tempRoot.rotation.set(0, 0, 0);
+    tempRoot.updateMatrixWorld(true);
+    const planarBox = new THREE.Box3().setFromObject(tempRoot);
+    const planarSize = planarBox.getSize(new THREE.Vector3());
+
     tempRoot.rotation.set(MODEL_ROTATION_X, MODEL_YAW_OFFSET, 0);
     tempRoot.updateMatrixWorld(true);
 
@@ -39,8 +59,19 @@ export default function FloorModel({ floor }: { floor: number }) {
     return {
       model: cloned,
       offset: new THREE.Vector3(-center.x, -minY, -center.z),
+      metrics: {
+        width: planarSize.x,
+        depth: planarSize.z,
+        area: planarSize.x * planarSize.z,
+        scale: MODEL_SCALE,
+      },
     };
   }, [scene]);
+
+  useEffect(() => {
+    if (!onMetricsComputed) return;
+    onMetricsComputed(metrics);
+  }, [metrics, onMetricsComputed]);
 
   return (
       <group

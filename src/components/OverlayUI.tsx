@@ -1,7 +1,7 @@
 import SearchBox from './SearchBox';
 import FloorSelector from './FloorSelector';
 import SetupModals from './SetupModals'; 
-import { useNavStore } from '../store/useNavStore';
+import { getThirdPointCalibrationCheck, useNavStore } from '../store/useNavStore';
    // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
 export default function OverlayUI() {
   const {
@@ -12,6 +12,8 @@ export default function OverlayUI() {
     userPosition,
     rawGpsPosition,
     convertedGpsMeters,
+    currentFloor,
+    currentFloorMetrics,
   } = useNavStore();
 
   const [userX, , userZ] = userPosition;
@@ -19,6 +21,7 @@ export default function OverlayUI() {
   const rawLng = rawGpsPosition?.[1];
   const absX = convertedGpsMeters?.[0];
   const absZ = convertedGpsMeters?.[1];
+  const thirdPointCheck = getThirdPointCalibrationCheck();
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[999] p-6 flex flex-col justify-between">
@@ -35,6 +38,24 @@ export default function OverlayUI() {
           <div className="mt-2 text-[10px] text-amber-300">DELTA FROM START (m)</div>
           <div>X: {userX.toFixed(2)}</div>
           <div>Z: {userZ.toFixed(2)}</div>
+
+          <div className="mt-2 text-[10px] text-fuchsia-300">FLOOR SIZE (scaled units)</div>
+          <div>Floor: {currentFloor}</div>
+          <div>
+            Width X: {currentFloorMetrics?.floor === currentFloor ? currentFloorMetrics.width.toFixed(2) : '-'}
+          </div>
+          <div>
+            Depth Z: {currentFloorMetrics?.floor === currentFloor ? currentFloorMetrics.depth.toFixed(2) : '-'}
+          </div>
+          <div>
+            Area X*Z: {currentFloorMetrics?.floor === currentFloor ? currentFloorMetrics.area.toFixed(2) : '-'}
+          </div>
+
+          <div className="mt-2 text-[10px] text-cyan-300">CALIBRATION CHECK (POINT #3)</div>
+          <div>Expected X,Y: {thirdPointCheck.expected.x.toFixed(2)}, {thirdPointCheck.expected.y.toFixed(2)}</div>
+          <div>Predicted X,Y: {thirdPointCheck.predicted.x.toFixed(2)}, {thirdPointCheck.predicted.y.toFixed(2)}</div>
+          <div>Error X,Y: {thirdPointCheck.errorX.toFixed(3)}, {thirdPointCheck.errorY.toFixed(3)}</div>
+          <div>Total Error: {thirdPointCheck.errorDistance.toFixed(3)}</div>
         </div>
       </div>
 
