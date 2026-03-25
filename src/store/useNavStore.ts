@@ -5,9 +5,11 @@ let positioning: PositioningManager | null = null;
 let mockTrackingTimer: ReturnType<typeof setInterval> | null = null;
 let mockTrackingSessionToken = 0;
 
-const USE_MOCK_TRACKING = false;  ////////debug mock location
+const USE_MOCK_TRACKING = true;  ////////debug mock location
 const MOCK_TRACKING_INTERVAL_MS = 1000;
 const AUTO_SWITCH_FLOOR_FROM_TRACKING = false;
+const SNAP_GPS_TO_BUILDING = true;
+const SNAP_BOUNDARY_PADDING_WORLD = 0;
 
 type TrackingSource = 'gps' | 'mock' | 'none';
 const DEFAULT_TRACKING_SOURCE: Exclude<TrackingSource, 'none'> =
@@ -151,6 +153,35 @@ interface FloorMetrics {
   scale: number;
 }
 
+interface WorldPosition {
+  worldX: number;
+  worldZ: number;
+}
+
+function snapWorldPositionToFloorBounds(
+  worldPosition: WorldPosition,
+  floorMetrics: FloorMetrics | null
+) {
+  if (!floorMetrics) {
+    return { ...worldPosition, snapped: false };
+  }
+
+  const halfWidth = floorMetrics.width / 2 - SNAP_BOUNDARY_PADDING_WORLD;
+  const halfDepth = floorMetrics.depth / 2 - SNAP_BOUNDARY_PADDING_WORLD;
+
+  const safeHalfWidth = Math.max(0, halfWidth);
+  const safeHalfDepth = Math.max(0, halfDepth);
+
+  const clampedX = Math.max(-safeHalfWidth, Math.min(safeHalfWidth, worldPosition.worldX));
+  const clampedZ = Math.max(-safeHalfDepth, Math.min(safeHalfDepth, worldPosition.worldZ));
+
+  return {
+    worldX: clampedX,
+    worldZ: clampedZ,
+    snapped: clampedX !== worldPosition.worldX || clampedZ !== worldPosition.worldZ,
+  };
+}
+
 interface NavState {
   userId: string | null;
 
@@ -213,13 +244,30 @@ export const useNavStore = create<NavState>((set, get) => {
     const mapped = gpsToMapXY(lat, lon);
     const transformed = mapToWorldXZ(mapped.x, mapped.y);
 
+    const snappedWorld =
+      source === 'gps' && SNAP_GPS_TO_BUILDING
+        ? snapWorldPositionToFloorBounds(
+            { worldX: transformed.worldX, worldZ: transformed.worldZ },
+            state.currentFloorMetrics
+          )
+        : {
+            worldX: transformed.worldX,
+            worldZ: transformed.worldZ,
+            snapped: false,
+          };
+
+    const snappedMeters = {
+      xRot: snappedWorld.worldX / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+      yRot: snappedWorld.worldZ / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+    };
+
     const shouldSyncFloor =
       AUTO_SWITCH_FLOOR_FROM_TRACKING && typeof floorId === 'number';
 
     set({
-      userPosition: [transformed.worldX, 0, transformed.worldZ],
+      userPosition: [snappedWorld.worldX, 0, snappedWorld.worldZ],
       rawGpsPosition: [lat, lon],
-      convertedGpsMeters: [transformed.xRot, transformed.yRot],
+      convertedGpsMeters: [snappedMeters.xRot, snappedMeters.yRot],
       userActualFloor: shouldSyncFloor ? floorId : get().userActualFloor,
       currentFloor: shouldSyncFloor ? floorId : get().currentFloor,
     });
