@@ -11,7 +11,7 @@ const MODEL_ROTATION_X = 0;
 
 // Map north calibration (yaw around Y axis).
 // Example: THREE.MathUtils.degToRad(12) to rotate 12 degrees.
-const MODEL_YAW_OFFSET = THREE.MathUtils.degToRad(-8);
+const MODEL_YAW_OFFSET = 0;
 
 export interface FloorRenderMetrics {
   width: number;

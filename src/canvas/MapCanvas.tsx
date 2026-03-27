@@ -6,7 +6,7 @@ import {
   ContactShadows,
 } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useNavStore } from '../store/useNavStore';
+import { gpsToWorldXZ, useNavStore } from '../store/useNavStore';
 import FloorModel from './FloorModel';
 import Avatar from './Avatar.jsx';
 import * as THREE from 'three';
@@ -186,17 +186,11 @@ export default function MapCanvas() {
     if (!targetLocation) return null;
 
     if (
-      typeof targetLocation.x === 'number' &&
-      typeof targetLocation.z === 'number'
+      typeof targetLocation.lat === 'number' &&
+      typeof targetLocation.lon === 'number'
     ) {
-      return [targetLocation.x, targetLocation.z];
-    }
-
-    if (typeof targetLocation.node_id === 'number') {
-      const nodeId = targetLocation.node_id;
-      const fallbackX = ((nodeId % 100) - 50) / 5;
-      const fallbackZ = (Math.floor(nodeId / 100) - 3) * 4;
-      return [fallbackX, fallbackZ];
+      const transformed = gpsToWorldXZ(targetLocation.lat, targetLocation.lon);
+      return [transformed.worldX, transformed.worldZ];
     }
 
     return null;

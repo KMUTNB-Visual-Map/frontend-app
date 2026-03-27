@@ -2,18 +2,10 @@ import { create } from 'zustand';
 import { PositioningManager } from '../core/positioning';
 
 let positioning: PositioningManager | null = null;
-let mockTrackingTimer: ReturnType<typeof setInterval> | null = null;
-let mockTrackingSessionToken = 0;
-
-const USE_MOCK_TRACKING = true;  ////////debug mock location
-const MOCK_TRACKING_INTERVAL_MS = 1000;
 const AUTO_SWITCH_FLOOR_FROM_TRACKING = false;
-const SNAP_GPS_TO_BUILDING = true;
-const SNAP_BOUNDARY_PADDING_WORLD = 0;
 
-type TrackingSource = 'gps' | 'mock' | 'none';
-const DEFAULT_TRACKING_SOURCE: Exclude<TrackingSource, 'none'> =
-  USE_MOCK_TRACKING ? 'mock' : 'gps';
+type TrackingSource = 'gps' | 'none';
+const DEFAULT_TRACKING_SOURCE: Exclude<TrackingSource, 'none'> = 'gps';
 
 interface CalibrationPoint {
   lat: number;
@@ -24,9 +16,6 @@ interface CalibrationPoint {
 
 // Centralized calibration/config section.
 const MAP_CALIBRATION_CONFIG = {
-  // Rotation angle for map alignment (degrees).
-  MAP_ROTATION_DEG: 145,
-
   // Scale from map units (meters) to world units.
   WORLD_SCALE: 0.1,
 
@@ -53,7 +42,6 @@ const MAP_CALIBRATION_CONFIG = {
   } as CalibrationPoint,
 };
 
-export const MAP_ROTATION_DEG = MAP_CALIBRATION_CONFIG.MAP_ROTATION_DEG;
 export const GPS_CALIBRATION_A = MAP_CALIBRATION_CONFIG.ORIGIN_A;
 export const GPS_CALIBRATION_B = MAP_CALIBRATION_CONFIG.ORIGIN_B;
 export const GPS_CALIBRATION_CHECK_POINT = MAP_CALIBRATION_CONFIG.CHECK_POINT;
@@ -66,26 +54,23 @@ const MAP_Y_PER_LAT =
   (MAP_CALIBRATION_CONFIG.ORIGIN_B.y - MAP_CALIBRATION_CONFIG.ORIGIN_A.y) /
   (MAP_CALIBRATION_CONFIG.ORIGIN_B.lat - MAP_CALIBRATION_CONFIG.ORIGIN_A.lat);
 
-const theta = (MAP_ROTATION_DEG * Math.PI) / 180;
-const cosTheta = Math.cos(theta);
-const sinTheta = Math.sin(theta);
-
-function rotateMapXY(x: number, y: number) {
-  const xRot = x * cosTheta - y * sinTheta;
-  const yRot = x * sinTheta + y * cosTheta;
-
-  return { x: xRot, y: yRot };
-}
+const ENABLE_COORDINATE_DEBUG_LOGS = import.meta.env.DEV;
 
 function mapToWorldXZ(x: number, y: number) {
-  const rotated = rotateMapXY(x, y);
-
-  return {
-    worldX: rotated.x * MAP_CALIBRATION_CONFIG.WORLD_SCALE,
-    worldZ: rotated.y * MAP_CALIBRATION_CONFIG.WORLD_SCALE,
-    xRot: rotated.x,
-    yRot: rotated.y,
+  const world = {
+    worldX: x * MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+    worldZ: y * MAP_CALIBRATION_CONFIG.WORLD_SCALE,
   };
+
+  if (ENABLE_COORDINATE_DEBUG_LOGS) {
+    console.log('[coord] step2 mapToWorldXZ', {
+      inputMap: { x, y },
+      world,
+      worldScale: MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+    });
+  }
+
+  return world;
 }
 
 export function gpsToMapXY(lat: number, lon: number) {
@@ -96,7 +81,39 @@ export function gpsToMapXY(lat: number, lon: number) {
     MAP_CALIBRATION_CONFIG.ORIGIN_A.y +
     (lat - MAP_CALIBRATION_CONFIG.ORIGIN_A.lat) * MAP_Y_PER_LAT;
 
+  if (ENABLE_COORDINATE_DEBUG_LOGS) {
+    console.log('[coord] step1 gpsToMapXY', {
+      inputGps: { lat, lon },
+      map: { x, y },
+      calibration: {
+        originA: MAP_CALIBRATION_CONFIG.ORIGIN_A,
+        originB: MAP_CALIBRATION_CONFIG.ORIGIN_B,
+        mapXPerLon: MAP_X_PER_LON,
+        mapYPerLat: MAP_Y_PER_LAT,
+      },
+    });
+  }
+
   return { x, y };
+}
+
+export function gpsToWorldXZ(lat: number, lon: number) {
+  if (ENABLE_COORDINATE_DEBUG_LOGS) {
+    console.log('[coord] input gpsToWorldXZ', { lat, lon });
+  }
+
+  const mapped = gpsToMapXY(lat, lon);
+  const world = mapToWorldXZ(mapped.x, mapped.y);
+
+  if (ENABLE_COORDINATE_DEBUG_LOGS) {
+    console.log('[coord] step3 gpsToWorldXZ result', {
+      inputGps: { lat, lon },
+      map: mapped,
+      world,
+    });
+  }
+
+  return world;
 }
 
 export function getThirdPointCalibrationCheck() {
@@ -123,8 +140,8 @@ interface TargetLocation {
   node_id?: number;
   name_th?: string;
   floor?: number;
-  x?: number;
-  z?: number;
+  lat?: number;
+  lon?: number;
 }
 
 interface GpsPosition {
@@ -133,53 +150,12 @@ interface GpsPosition {
   floor_id?: number;
 }
 
-interface MockMapPosition {
-  lat: number;
-  lon: number;
-  floor_id?: number;
-}
-
-function clearMockTrackingTimer() {
-  if (!mockTrackingTimer) return;
-  clearInterval(mockTrackingTimer);
-  mockTrackingTimer = null;
-}
-
 interface FloorMetrics {
   floor: number;
   width: number;
   depth: number;
   area: number;
   scale: number;
-}
-
-interface WorldPosition {
-  worldX: number;
-  worldZ: number;
-}
-
-function snapWorldPositionToFloorBounds(
-  worldPosition: WorldPosition,
-  floorMetrics: FloorMetrics | null
-) {
-  if (!floorMetrics) {
-    return { ...worldPosition, snapped: false };
-  }
-
-  const halfWidth = floorMetrics.width / 2 - SNAP_BOUNDARY_PADDING_WORLD;
-  const halfDepth = floorMetrics.depth / 2 - SNAP_BOUNDARY_PADDING_WORLD;
-
-  const safeHalfWidth = Math.max(0, halfWidth);
-  const safeHalfDepth = Math.max(0, halfDepth);
-
-  const clampedX = Math.max(-safeHalfWidth, Math.min(safeHalfWidth, worldPosition.worldX));
-  const clampedZ = Math.max(-safeHalfDepth, Math.min(safeHalfDepth, worldPosition.worldZ));
-
-  return {
-    worldX: clampedX,
-    worldZ: clampedZ,
-    snapped: clampedX !== worldPosition.worldX || clampedZ !== worldPosition.worldZ,
-  };
 }
 
 interface NavState {
@@ -223,9 +199,6 @@ interface NavState {
 
 export const useNavStore = create<NavState>((set, get) => {
   const clearTrackingSourceRuntime = () => {
-    mockTrackingSessionToken += 1;
-    clearMockTrackingTimer();
-
     if (positioning) {
       positioning.startManualMode();
     }
@@ -244,30 +217,18 @@ export const useNavStore = create<NavState>((set, get) => {
     const mapped = gpsToMapXY(lat, lon);
     const transformed = mapToWorldXZ(mapped.x, mapped.y);
 
-    const snappedWorld =
-      source === 'gps' && SNAP_GPS_TO_BUILDING
-        ? snapWorldPositionToFloorBounds(
-            { worldX: transformed.worldX, worldZ: transformed.worldZ },
-            state.currentFloorMetrics
-          )
-        : {
-            worldX: transformed.worldX,
-            worldZ: transformed.worldZ,
-            snapped: false,
-          };
-
-    const snappedMeters = {
-      xRot: snappedWorld.worldX / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
-      yRot: snappedWorld.worldZ / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+    const convertedMeters = {
+      x: transformed.worldX / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+      y: transformed.worldZ / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
     };
 
     const shouldSyncFloor =
       AUTO_SWITCH_FLOOR_FROM_TRACKING && typeof floorId === 'number';
 
     set({
-      userPosition: [snappedWorld.worldX, 0, snappedWorld.worldZ],
+      userPosition: [transformed.worldX, 0, transformed.worldZ],
       rawGpsPosition: [lat, lon],
-      convertedGpsMeters: [snappedMeters.xRot, snappedMeters.yRot],
+      convertedGpsMeters: [convertedMeters.x, convertedMeters.y],
       userActualFloor: shouldSyncFloor ? floorId : get().userActualFloor,
       currentFloor: shouldSyncFloor ? floorId : get().currentFloor,
     });
@@ -295,61 +256,6 @@ export const useNavStore = create<NavState>((set, get) => {
     return true;
   };
 
-  const startMockTracking = async (): Promise<boolean> => {
-    const sessionToken = ++mockTrackingSessionToken;
-
-    try {
-      const response = await fetch('/mock-user-path.json');
-      if (!response.ok) {
-        throw new Error(`Unable to load mock path (${response.status})`);
-      }
-
-      const path = (await response.json()) as MockMapPosition[];
-      if (!Array.isArray(path) || path.length === 0) {
-        throw new Error('Mock path file is empty');
-      }
-
-      // Source changed while loading, abort startup.
-      if (sessionToken !== mockTrackingSessionToken) {
-        return false;
-      }
-
-      set({
-        isFollowing: true,
-        cameraMode: 'FOLLOW',
-        trackingSource: 'mock',
-      });
-
-      let pathIndex = 0;
-      const applyCurrentPoint = () => {
-        const point = path[pathIndex];
-        applyTrackingPosition(point.lat, point.lon, point.floor_id, 'mock');
-      };
-
-      applyCurrentPoint();
-
-      mockTrackingTimer = setInterval(() => {
-        const state = get();
-        if (
-          !state.isFollowing ||
-          state.trackingSource !== 'mock' ||
-          sessionToken !== mockTrackingSessionToken
-        ) {
-          clearMockTrackingTimer();
-          return;
-        }
-
-        pathIndex = (pathIndex + 1) % path.length;
-        applyCurrentPoint();
-      }, MOCK_TRACKING_INTERVAL_MS);
-
-      return true;
-    } catch (error) {
-      console.error('Failed to start JSON tracking:', error);
-      return false;
-    }
-  };
-
   const startTrackingBySource = async (
     source: Exclude<TrackingSource, 'none'>
   ): Promise<boolean> => {
@@ -364,11 +270,7 @@ export const useNavStore = create<NavState>((set, get) => {
       trackingSource: source,
     });
 
-    if (source === 'gps') {
-      return startGpsTracking();
-    }
-
-    return startMockTracking();
+    return startGpsTracking();
   };
 
   return ({
@@ -430,15 +332,39 @@ export const useNavStore = create<NavState>((set, get) => {
     }),
 
   setTarget: (location) => {
-    set({ targetLocation: location });
-
-    if (location && positioning) {
-      positioning.setDestination({
-        x: location.node_id || 0,
-        y: location.node_id || 0,
-        floor_id: location.floor || 1,
-      });
+    if (!location) {
+      set({ targetLocation: null });
+      return;
     }
+
+    const updates: Partial<NavState> = {
+      targetLocation: location,
+    };
+
+    if (typeof location.floor === 'number') {
+      updates.currentFloor = location.floor;
+      updates.userActualFloor = location.floor;
+    }
+
+    if (typeof location.lat === 'number' && typeof location.lon === 'number') {
+      const transformed = gpsToWorldXZ(location.lat, location.lon);
+
+      updates.userPosition = [transformed.worldX, 0, transformed.worldZ];
+      updates.rawGpsPosition = [location.lat, location.lon];
+      updates.convertedGpsMeters = [
+        transformed.worldX / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+        transformed.worldZ / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
+      ];
+    }
+
+    if (get().isFollowing) {
+      clearTrackingSourceRuntime();
+      updates.isFollowing = false;
+      updates.trackingSource = 'none';
+      updates.cameraMode = 'FREE';
+    }
+
+    set(updates);
   },
 
   setUserPosition: (position) => set({ userPosition: position }),

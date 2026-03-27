@@ -53,7 +53,9 @@ const suggestions = useMemo<Landmark[]>(() => {
       location_id: loc.node_id,
       node_id: loc.node_id,
       name_th: loc.name_th,
-      floor: loc.floor_id
+      floor: loc.floor_id,
+      lat: loc.lat,
+      lon: loc.lng,
     });
   };
 
