@@ -1,0 +1,1388 @@
+[
+  {
+    "node_id": 1,
+    "floor_id": 1,
+    "name_th": "สมาคมศิษย์เก่า",
+    "type": "room",
+    "name_eng": "Alumni Association",
+    "x": -2.2,
+    "z": -9.29
+  },
+  {
+    "node_id": 2,
+    "floor_id": 1,
+    "name_th": "สโมสรนิสิต",
+    "type": "room",
+    "name_eng": "Student Association",
+    "x": 0.75,
+    "z": -9.18
+  },
+  {
+    "node_id": 3,
+    "floor_id": 1,
+    "name_th": "ร้านค้า",
+    "type": "room",
+    "name_eng": "Shop",
+    "x": 0.74,
+    "z": -7.88
+  },
+  {
+    "node_id": 4,
+    "floor_id": 1,
+    "name_th": "บันได 1_01",
+    "type": "stair",
+    "name_eng": "Stair 1_01",
+    "x": -0.5,
+    "z": -5.7
+  },
+  {
+    "node_id": 5,
+    "floor_id": 1,
+    "name_th": "บันได_ชั้น 1_01",
+    "type": "stair",
+    "name_eng": "Stair_level 1_01",
+    "x": -1.5,
+    "z": -5.1
+  },
+  {
+    "node_id": 6,
+    "floor_id": 1,
+    "name_th": "ลิฟต์_ชั้น 1_01",
+    "type": "elevator",
+    "name_eng": "Elevator_level 1_01",
+    "x": -1.4,
+    "z": -4.4
+  },
+  {
+    "node_id": 7,
+    "floor_id": 1,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 1_01",
+    "type": "room",
+    "name_eng": "Toilet_F_level 1_01",
+    "x": 2.52,
+    "z": -3.9
+  },
+  {
+    "node_id": 8,
+    "floor_id": 1,
+    "name_th": "ลิฟต์_ชั้น 1_02",
+    "type": "elevator",
+    "name_eng": "Elevator_level 1_02",
+    "x": -1.4,
+    "z": -3.6
+  },
+  {
+    "node_id": 9,
+    "floor_id": 1,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 1_01",
+    "type": "room",
+    "name_eng": "Toilet_M_level 1_01",
+    "x": 2.39,
+    "z": -2.77
+  },
+  {
+    "node_id": 10,
+    "floor_id": 1,
+    "name_th": "บันได 1_02",
+    "type": "stair",
+    "name_eng": "Stair 1_02",
+    "x": -1.65,
+    "z": 6.25
+  },
+  {
+    "node_id": 11,
+    "floor_id": 1,
+    "name_th": "ทางเดิน 1_01",
+    "type": "hallway",
+    "name_eng": "Hallway 1_01",
+    "x": -1.3,
+    "z": 2.5
+  },
+  {
+    "node_id": 12,
+    "floor_id": 1,
+    "name_th": "ทางเดิน 1_05",
+    "type": "hallway",
+    "name_eng": "Hallway 1_05",
+    "x": 2.45,
+    "z": 2.5
+  },
+  {
+    "node_id": 13,
+    "floor_id": 1,
+    "name_th": "ทางเดิน 1_02",
+    "type": "hallway",
+    "name_eng": "Hallway 1_02",
+    "x": -0.5,
+    "z": 2.5
+  },
+  {
+    "node_id": 14,
+    "floor_id": 1,
+    "name_th": "ทางเดิน 1_03",
+    "type": "hallway",
+    "name_eng": "Hallway 1_03",
+    "x": 0.35,
+    "z": 2.5
+  },
+  {
+    "node_id": 15,
+    "floor_id": 1,
+    "name_th": "บันได 1_03",
+    "type": "stair",
+    "name_eng": "Stair 1_03",
+    "x": 2.5,
+    "z": 6.25
+  },
+  {
+    "node_id": 16,
+    "floor_id": 1,
+    "name_th": "บันได_ชั้น 1_02",
+    "type": "stair",
+    "name_eng": "Stair_level 1_02",
+    "x": 3.25,
+    "z": -1.75
+  },
+  {
+    "node_id": 17,
+    "floor_id": 1,
+    "name_th": "ทางเดิน 1_04",
+    "type": "hallway",
+    "name_eng": "Hallway 1_04",
+    "x": 1.25,
+    "z": 2.5
+  },
+  {
+    "node_id": 18,
+    "floor_id": 2,
+    "name_th": "ทางเข้า_ชั้น 2",
+    "type": "entrance",
+    "name_eng": "Entrance_level 2",
+    "x": -0.1,
+    "z": -6.25
+  },
+  {
+    "node_id": 19,
+    "floor_id": 2,
+    "name_th": "ห้องภาควิชาไฟฟ้าและคอมพิวเตอร์",
+    "type": "room",
+    "name_eng": "Department of Electrical and Computer Engineering",
+    "x": -0.71,
+    "z": -2.89
+  },
+  {
+    "node_id": 20,
+    "floor_id": 2,
+    "name_th": "ทางเดิน 2_01",
+    "type": "hallway",
+    "name_eng": "Hallway 2_01",
+    "x": -0.9,
+    "z": -1.12
+  },
+  {
+    "node_id": 21,
+    "floor_id": 2,
+    "name_th": "ทางเดิน 2_02",
+    "type": "stair",
+    "name_eng": "Hallway 2_02",
+    "x": 0.8,
+    "z": -1.12
+  },
+  {
+    "node_id": 22,
+    "floor_id": 2,
+    "name_th": "ทางเดิน 2_03",
+    "type": "elevator",
+    "name_eng": "Hallway 2_03",
+    "x": -1.33,
+    "z": 8.8
+  },
+  {
+    "node_id": 23,
+    "floor_id": 2,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 2_01",
+    "type": "room",
+    "name_eng": "Toilet_F_level 2_01",
+    "x": 2.38,
+    "z": -3.33
+  },
+  {
+    "node_id": 24,
+    "floor_id": 2,
+    "name_th": "ทางเดิน 2_04",
+    "type": "elevator",
+    "name_eng": "Hallway 2_04",
+    "x": 1.85,
+    "z": 6
+  },
+  {
+    "node_id": 25,
+    "floor_id": 2,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 2_01",
+    "type": "room",
+    "name_eng": "Toilet_M_level 2_01",
+    "x": 2.37,
+    "z": -2.39
+  },
+  {
+    "node_id": 26,
+    "floor_id": 2,
+    "name_th": "ห้องควบคุม",
+    "type": "room",
+    "name_eng": "Control_room",
+    "x": 1.99,
+    "z": -0.78
+  },
+  {
+    "node_id": 27,
+    "floor_id": 2,
+    "name_th": "ทางเดิน 2_05",
+    "type": "hallway",
+    "name_eng": "Hallway 2_05",
+    "x": -1.6,
+    "z": -1.8
+  },
+  {
+    "node_id": 28,
+    "floor_id": 2,
+    "name_th": "ห้องประชุมชั้น2",
+    "type": "room",
+    "name_eng": "Meeting_room_2",
+    "x": 2.34,
+    "z": 1.48
+  },
+  {
+    "node_id": 29,
+    "floor_id": 2,
+    "name_th": "บันได_ชั้น 2_01",
+    "type": "hallway",
+    "name_eng": "Stair_level 2_01",
+    "x": 1.5,
+    "z": -4.75
+  },
+  {
+    "node_id": 30,
+    "floor_id": 2,
+    "name_th": "ห้องคณบดี",
+    "type": "room",
+    "name_eng": "Dean's Office",
+    "x": 2.53,
+    "z": 9.86
+  },
+  {
+    "node_id": 31,
+    "floor_id": 2,
+    "name_th": "บันได_ชั้น 2_02",
+    "type": "hallway",
+    "name_eng": "Stair_level 2_02",
+    "x": -1.8,
+    "z": 6.6
+  },
+  {
+    "node_id": 32,
+    "floor_id": 2,
+    "name_th": "ลิฟต์_ชั้น 2_01",
+    "type": "stair",
+    "name_eng": "Elevator_level 2_01",
+    "x": -1.5,
+    "z": -4
+  },
+  {
+    "node_id": 33,
+    "floor_id": 2,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 2_02",
+    "type": "room",
+    "name_eng": "Toilet_M_level 2_02",
+    "x": -2.75,
+    "z": 7.26
+  },
+  {
+    "node_id": 34,
+    "floor_id": 2,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 2_02",
+    "type": "room",
+    "name_eng": "Toilet_F_level 2_02",
+    "x": -2.68,
+    "z": 7.7
+  },
+  {
+    "node_id": 35,
+    "floor_id": 2,
+    "name_th": "ลิฟต์_ชั้น 2_02",
+    "type": "hallway",
+    "name_eng": "Elevator_level 2_02",
+    "x": -1.5,
+    "z": -3.1
+  },
+  {
+    "node_id": 36,
+    "floor_id": 3,
+    "name_th": "ห้องประชุมวิจิตรวาที",
+    "type": "room",
+    "name_eng": "Lecture Theater",
+    "x": 0.92,
+    "z": -7.31
+  },
+  {
+    "node_id": 37,
+    "floor_id": 3,
+    "name_th": "ทางเดิน 3_01",
+    "type": "hallway",
+    "name_eng": "Hallway 3_01",
+    "x": -0.8,
+    "z": -4.25
+  },
+  {
+    "node_id": 38,
+    "floor_id": 3,
+    "name_th": "กองบริการการศึกษา",
+    "type": "room",
+    "name_eng": "Academic Office",
+    "x": -0.6,
+    "z": -3.51
+  },
+  {
+    "node_id": 39,
+    "floor_id": 3,
+    "name_th": "ทางเดิน 3_02",
+    "type": "stair",
+    "name_eng": "Hallway 3_02",
+    "x": -1.6,
+    "z": -1.5
+  },
+  {
+    "node_id": 40,
+    "floor_id": 3,
+    "name_th": "ทางเดิน 3_03",
+    "type": "elevator",
+    "name_eng": "Hallway 3_03",
+    "x": 1.12,
+    "z": 3.53
+  },
+  {
+    "node_id": 41,
+    "floor_id": 3,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 3_01",
+    "type": "room",
+    "name_eng": "Toilet_F_level 3_01",
+    "x": 2.41,
+    "z": -3.07
+  },
+  {
+    "node_id": 42,
+    "floor_id": 3,
+    "name_th": "ทางเดิน 3_04",
+    "type": "elevator",
+    "name_eng": "Hallway 3_04",
+    "x": -1.3,
+    "z": 6.95
+  },
+  {
+    "node_id": 43,
+    "floor_id": 3,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 3_01",
+    "type": "room",
+    "name_eng": "Toilet_M_level 3_01",
+    "x": 2.35,
+    "z": -2.12
+  },
+  {
+    "node_id": 44,
+    "floor_id": 3,
+    "name_th": "ทางเดิน 3_06",
+    "type": "hallway",
+    "name_eng": "Hallway 3_06",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 45,
+    "floor_id": 3,
+    "name_th": "แผนกการเงิน",
+    "type": "room",
+    "name_eng": "Finance Office",
+    "x": -0.16,
+    "z": -0.22
+  },
+  {
+    "node_id": 46,
+    "floor_id": 3,
+    "name_th": "ห้องทานอาหาร",
+    "type": "room",
+    "name_eng": "breaking room",
+    "x": 2.12,
+    "z": 0.31
+  },
+  {
+    "node_id": 47,
+    "floor_id": 3,
+    "name_th": "ห้องประชุมย่อย",
+    "type": "room",
+    "name_eng": "small meeting room",
+    "x": 2.51,
+    "z": 1.21
+  },
+  {
+    "node_id": 48,
+    "floor_id": 3,
+    "name_th": "ห้องหัวหน้าสำนักงาน",
+    "type": "room",
+    "name_eng": "Office Head Room",
+    "x": 2.12,
+    "z": 1.99
+  },
+  {
+    "node_id": 49,
+    "floor_id": 3,
+    "name_th": "ห้องทำงานผู้เชี่ยวชาญ",
+    "type": "room",
+    "name_eng": "Office",
+    "x": 2.22,
+    "z": 2.78
+  },
+  {
+    "node_id": 50,
+    "floor_id": 3,
+    "name_th": "ทางเดิน 3_02",
+    "type": "hallway",
+    "name_eng": "Hallway 3_02",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 51,
+    "floor_id": 3,
+    "name_th": "บันได_ชั้น 3_01",
+    "type": "hallway",
+    "name_eng": "Stair_level 3_01",
+    "x": 1.5,
+    "z": -4.45
+  },
+  {
+    "node_id": 52,
+    "floor_id": 3,
+    "name_th": "ห้องเอนกประสงค์",
+    "type": "room",
+    "name_eng": "Multipurpose room",
+    "x": 2.16,
+    "z": 4.44
+  },
+  {
+    "node_id": 53,
+    "floor_id": 3,
+    "name_th": "บันได_ชั้น 3_02",
+    "type": "hallway",
+    "name_eng": "Stair_level 3_02",
+    "x": -2.25,
+    "z": 6.75
+  },
+  {
+    "node_id": 54,
+    "floor_id": 3,
+    "name_th": "ลิฟต์_ชั้น 3_01",
+    "type": "stair",
+    "name_eng": "Elevator_level 3_01",
+    "x": 1.45,
+    "z": -3.7
+  },
+  {
+    "node_id": 55,
+    "floor_id": 3,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 3_02",
+    "type": "room",
+    "name_eng": "Toilet_M_level 3_02",
+    "x": -2.85,
+    "z": 7.57
+  },
+  {
+    "node_id": 56,
+    "floor_id": 3,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 3_02",
+    "type": "room",
+    "name_eng": "Toilet_F_level 3_02",
+    "x": -2.65,
+    "z": 8.05
+  },
+  {
+    "node_id": 57,
+    "floor_id": 3,
+    "name_th": "ศูนย์อบรมวิทยาการด้านหุ่นยนต์",
+    "type": "room",
+    "name_eng": "Robot Academy",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 58,
+    "floor_id": 3,
+    "name_th": "ลิฟต์_ชั้น 3_02",
+    "type": "hallway",
+    "name_eng": "Elevator_level 3_02",
+    "x": 1.5,
+    "z": -2.8
+  },
+  {
+    "node_id": 59,
+    "floor_id": 4,
+    "name_th": "1402",
+    "type": "room",
+    "name_eng": "1402",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 60,
+    "floor_id": 4,
+    "name_th": "1403",
+    "type": "room",
+    "name_eng": "1403",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 61,
+    "floor_id": 4,
+    "name_th": "1404",
+    "type": "room",
+    "name_eng": "1404",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 62,
+    "floor_id": 4,
+    "name_th": "บันได_ชั้น 4_01",
+    "type": "stair",
+    "name_eng": "Stair_level 4_01",
+    "x": 1.5,
+    "z": -4.45
+  },
+  {
+    "node_id": 63,
+    "floor_id": 4,
+    "name_th": "ลิฟต์_ชั้น 4_01",
+    "type": "elevator",
+    "name_eng": "Elevator_level 4_01",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 64,
+    "floor_id": 4,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 4_01",
+    "type": "room",
+    "name_eng": "Toilet_F_level 4_01",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 65,
+    "floor_id": 4,
+    "name_th": "ลิฟต์_ชั้น 4_02",
+    "type": "elevator",
+    "name_eng": "Elevator_level 4_02",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 66,
+    "floor_id": 4,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 4_01",
+    "type": "room",
+    "name_eng": "Toilet_M_level 4_01",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 67,
+    "floor_id": 4,
+    "name_th": "ทางเดิน 4_01",
+    "type": "hallway",
+    "name_eng": "Hallway 4_01",
+    "x": 0.72,
+    "z": -3.37
+  },
+  {
+    "node_id": 68,
+    "floor_id": 4,
+    "name_th": "1436",
+    "type": "room",
+    "name_eng": "1436",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 69,
+    "floor_id": 4,
+    "name_th": "ทางเดิน 4_02",
+    "type": "hallway",
+    "name_eng": "Hallway 4_02",
+    "x": -1.57,
+    "z": -3.85
+  },
+  {
+    "node_id": 70,
+    "floor_id": 4,
+    "name_th": "1433",
+    "type": "room",
+    "name_eng": "1433",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 71,
+    "floor_id": 4,
+    "name_th": "1408",
+    "type": "room",
+    "name_eng": "1408",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 72,
+    "floor_id": 4,
+    "name_th": "1409",
+    "type": "room",
+    "name_eng": "1409",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 73,
+    "floor_id": 4,
+    "name_th": "1410",
+    "type": "room",
+    "name_eng": "1410",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 74,
+    "floor_id": 4,
+    "name_th": "1411",
+    "type": "room",
+    "name_eng": "1411",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 75,
+    "floor_id": 4,
+    "name_th": "1412",
+    "type": "room",
+    "name_eng": "1412",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 76,
+    "floor_id": 4,
+    "name_th": "1413",
+    "type": "room",
+    "name_eng": "1413",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 77,
+    "floor_id": 4,
+    "name_th": "1414",
+    "type": "room",
+    "name_eng": "1414",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 78,
+    "floor_id": 4,
+    "name_th": "1415",
+    "type": "room",
+    "name_eng": "1415",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 79,
+    "floor_id": 4,
+    "name_th": "1416",
+    "type": "room",
+    "name_eng": "1416",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 80,
+    "floor_id": 4,
+    "name_th": "1417",
+    "type": "room",
+    "name_eng": "1417",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 81,
+    "floor_id": 4,
+    "name_th": "1432",
+    "type": "room",
+    "name_eng": "1432",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 82,
+    "floor_id": 4,
+    "name_th": "ทางเดิน 4_03",
+    "type": "hallway",
+    "name_eng": "Hallway 4_03",
+    "x": 0.25,
+    "z": 2.38
+  },
+  {
+    "node_id": 83,
+    "floor_id": 4,
+    "name_th": "พื้นที่ทำงานร่วมกัน",
+    "type": "room",
+    "name_eng": "co-workingspace",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 84,
+    "floor_id": 4,
+    "name_th": "ทางเดิน 4_04",
+    "type": "hallway",
+    "name_eng": "Hallway 4_04",
+    "x": 0.11,
+    "z": 3.49
+  },
+  {
+    "node_id": 85,
+    "floor_id": 4,
+    "name_th": "1431",
+    "type": "room",
+    "name_eng": "1431",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 86,
+    "floor_id": 4,
+    "name_th": "ห้องเรียน1",
+    "type": "room",
+    "name_eng": "Lecture_room_1",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 87,
+    "floor_id": 4,
+    "name_th": "ห้องเรียน2",
+    "type": "room",
+    "name_eng": "Lecture_room_2",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 88,
+    "floor_id": 4,
+    "name_th": "ห้องเรียน3",
+    "type": "room",
+    "name_eng": "Lecture_room_3",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 89,
+    "floor_id": 4,
+    "name_th": "ห้องเรียน4",
+    "type": "room",
+    "name_eng": "Lecture_room_4",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 90,
+    "floor_id": 4,
+    "name_th": "ทางเดิน 4_05",
+    "type": "hallway",
+    "name_eng": "Hallway 4_05",
+    "x": 0.6,
+    "z": 7.72
+  },
+  {
+    "node_id": 91,
+    "floor_id": 4,
+    "name_th": "ทางเดิน 4_06",
+    "type": "hallway",
+    "name_eng": "Hallway 4_06",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 92,
+    "floor_id": 4,
+    "name_th": "บันได_ชั้น 4_02",
+    "type": "stair",
+    "name_eng": "Stair_level 4_02",
+    "x": 1.56,
+    "z": 4.01
+  },
+  {
+    "node_id": 93,
+    "floor_id": 4,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 4_02",
+    "type": "room",
+    "name_eng": "Toilet_M_level 4_02",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 94,
+    "floor_id": 4,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 4_02",
+    "type": "room",
+    "name_eng": "Toilet_F_level 4_02",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 95,
+    "floor_id": 5,
+    "name_th": "506",
+    "type": "room",
+    "name_eng": "506",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 96,
+    "floor_id": 5,
+    "name_th": "504",
+    "type": "room",
+    "name_eng": "504",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 97,
+    "floor_id": 5,
+    "name_th": "507",
+    "type": "room",
+    "name_eng": "507",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 98,
+    "floor_id": 5,
+    "name_th": "ทางเดิน หน้าลิฟต์ชั้น 5",
+    "type": "hallway",
+    "name_eng": "Hallway in front of elevator",
+    "x": 0.72,
+    "z": -3.29
+  },
+  {
+    "node_id": 99,
+    "floor_id": 5,
+    "name_th": "505",
+    "type": "room",
+    "name_eng": "505",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 100,
+    "floor_id": 5,
+    "name_th": "ทางเดิน 5_02",
+    "type": "hallway",
+    "name_eng": "Hallway 5_02",
+    "x": 0.23,
+    "z": -7.12
+  },
+  {
+    "node_id": 101,
+    "floor_id": 5,
+    "name_th": "508",
+    "type": "room",
+    "name_eng": "508",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 102,
+    "floor_id": 5,
+    "name_th": "509",
+    "type": "room",
+    "name_eng": "509",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 103,
+    "floor_id": 5,
+    "name_th": "513",
+    "type": "room",
+    "name_eng": "513",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 104,
+    "floor_id": 5,
+    "name_th": "515",
+    "type": "room",
+    "name_eng": "515",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 105,
+    "floor_id": 5,
+    "name_th": "519",
+    "type": "room",
+    "name_eng": "519",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 106,
+    "floor_id": 5,
+    "name_th": "521",
+    "type": "room",
+    "name_eng": "521",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 107,
+    "floor_id": 5,
+    "name_th": "523",
+    "type": "room",
+    "name_eng": "523",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 108,
+    "floor_id": 5,
+    "name_th": "526",
+    "type": "room",
+    "name_eng": "526",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 109,
+    "floor_id": 5,
+    "name_th": "ทางเดิน 5_03",
+    "type": "hallway",
+    "name_eng": "Hallway 5_03",
+    "x": 0.22,
+    "z": 6.97
+  },
+  {
+    "node_id": 110,
+    "floor_id": 5,
+    "name_th": "บันได_ชั้น 5_01",
+    "type": "stair",
+    "name_eng": "Stair_level 5_01",
+    "x": 1.5,
+    "z": -4.45
+  },
+  {
+    "node_id": 111,
+    "floor_id": 5,
+    "name_th": "ลิฟต์_ชั้น 5_01",
+    "type": "elevator",
+    "name_eng": "Elevator_level 5_01",
+    "x": 1.5,
+    "z": -3.75
+  },
+  {
+    "node_id": 112,
+    "floor_id": 5,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 5_01",
+    "type": "room",
+    "name_eng": "Toilet_F_level 5_01",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 113,
+    "floor_id": 5,
+    "name_th": "ลิฟต์_ชั้น 5_02",
+    "type": "elevator",
+    "name_eng": "Elevator_level 5_02",
+    "x": 1.5,
+    "z": -2.83
+  },
+  {
+    "node_id": 114,
+    "floor_id": 5,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 5_01",
+    "type": "room",
+    "name_eng": "Toilet_M_level 5_01",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 115,
+    "floor_id": 5,
+    "name_th": "510",
+    "type": "room",
+    "name_eng": "510",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 116,
+    "floor_id": 5,
+    "name_th": "514",
+    "type": "room",
+    "name_eng": "514",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 117,
+    "floor_id": 5,
+    "name_th": "518",
+    "type": "room",
+    "name_eng": "518",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 118,
+    "floor_id": 5,
+    "name_th": "520",
+    "type": "room",
+    "name_eng": "520",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 119,
+    "floor_id": 5,
+    "name_th": "ทางเดิน 5_04",
+    "type": "hallway",
+    "name_eng": "Hallway 5_04",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 120,
+    "floor_id": 5,
+    "name_th": "ทางเดิน 5_05",
+    "type": "hallway",
+    "name_eng": "Hallway 5_05",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 121,
+    "floor_id": 5,
+    "name_th": "บันได_ชั้น 5_02",
+    "type": "stair",
+    "name_eng": "Stair_level 5_02",
+    "x": -2.31,
+    "z": 6.9
+  },
+  {
+    "node_id": 122,
+    "floor_id": 5,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 5_02",
+    "type": "room",
+    "name_eng": "Toilet_M_level 5_02",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 123,
+    "floor_id": 5,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 5_02",
+    "type": "room",
+    "name_eng": "Toilet_F_level 5_02",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 124,
+    "floor_id": 6,
+    "name_th": "601",
+    "type": "room",
+    "name_eng": "601",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 125,
+    "floor_id": 6,
+    "name_th": "602",
+    "type": "room",
+    "name_eng": "602",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 126,
+    "floor_id": 6,
+    "name_th": "ทางเดิน 6_01",
+    "type": "hallway",
+    "name_eng": "Hallway 6_01",
+    "x": 0.72,
+    "z": -3.29
+  },
+  {
+    "node_id": 127,
+    "floor_id": 6,
+    "name_th": "603",
+    "type": "room",
+    "name_eng": "603",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 128,
+    "floor_id": 6,
+    "name_th": "604",
+    "type": "room",
+    "name_eng": "604",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 129,
+    "floor_id": 6,
+    "name_th": "ทางเดิน 6_02",
+    "type": "hallway",
+    "name_eng": "Hallway 6_02",
+    "x": 0.23,
+    "z": -7.12
+  },
+  {
+    "node_id": 130,
+    "floor_id": 6,
+    "name_th": "บันได_ชั้น 6_01",
+    "type": "stair",
+    "name_eng": "Stair_level 6_01",
+    "x": 1.5,
+    "z": -4.45
+  },
+  {
+    "node_id": 131,
+    "floor_id": 6,
+    "name_th": "ลิฟต์_ชั้น 6_01",
+    "type": "elevator",
+    "name_eng": "Elevator_level 6_01",
+    "x": 1.5,
+    "z": -3.75
+  },
+  {
+    "node_id": 132,
+    "floor_id": 6,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 6_01",
+    "type": "room",
+    "name_eng": "Toilet_F_level 6_01",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 133,
+    "floor_id": 6,
+    "name_th": "ลิฟต์_ชั้น 6_02",
+    "type": "elevator",
+    "name_eng": "Elevator_level 6_02",
+    "x": 1.5,
+    "z": -2.83
+  },
+  {
+    "node_id": 134,
+    "floor_id": 6,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 6_01",
+    "type": "room",
+    "name_eng": "Toilet_M_level 6_01",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 135,
+    "floor_id": 6,
+    "name_th": "605",
+    "type": "room",
+    "name_eng": "605",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 136,
+    "floor_id": 6,
+    "name_th": "606",
+    "type": "room",
+    "name_eng": "606",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 137,
+    "floor_id": 6,
+    "name_th": "607",
+    "type": "room",
+    "name_eng": "607",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 138,
+    "floor_id": 6,
+    "name_th": "608",
+    "type": "room",
+    "name_eng": "608",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 139,
+    "floor_id": 6,
+    "name_th": "609",
+    "type": "room",
+    "name_eng": "609",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 140,
+    "floor_id": 6,
+    "name_th": "ทางเดิน 6_03",
+    "type": "hallway",
+    "name_eng": "Hallway 6_03",
+    "x": 0.22,
+    "z": 6.97
+  },
+  {
+    "node_id": 141,
+    "floor_id": 6,
+    "name_th": "611",
+    "type": "room",
+    "name_eng": "611",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 142,
+    "floor_id": 6,
+    "name_th": "610",
+    "type": "room",
+    "name_eng": "610",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 143,
+    "floor_id": 6,
+    "name_th": "613",
+    "type": "room",
+    "name_eng": "613",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 144,
+    "floor_id": 6,
+    "name_th": "615",
+    "type": "room",
+    "name_eng": "615",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 145,
+    "floor_id": 6,
+    "name_th": "612",
+    "type": "room",
+    "name_eng": "612",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 146,
+    "floor_id": 6,
+    "name_th": "617",
+    "type": "room",
+    "name_eng": "617",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 147,
+    "floor_id": 6,
+    "name_th": "614",
+    "type": "room",
+    "name_eng": "614",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 148,
+    "floor_id": 6,
+    "name_th": "619",
+    "type": "room",
+    "name_eng": "619",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 149,
+    "floor_id": 6,
+    "name_th": "616",
+    "type": "room",
+    "name_eng": "616",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 150,
+    "floor_id": 6,
+    "name_th": "ทางเดิน 6_04",
+    "type": "hallway",
+    "name_eng": "Hallway 6_04",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 151,
+    "floor_id": 6,
+    "name_th": "ทางเดิน 6_05",
+    "type": "hallway",
+    "name_eng": "Hallway 6_05",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 152,
+    "floor_id": 6,
+    "name_th": "บันได_ชั้น 6_02",
+    "type": "stair",
+    "name_eng": "Stair_level 6_02",
+    "x": -2.31,
+    "z": 6.9
+  },
+  {
+    "node_id": 153,
+    "floor_id": 6,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 6_02",
+    "type": "room",
+    "name_eng": "Toilet_M_level 6_02",
+    "x": null,
+    "z": null
+  },
+  {
+    "node_id": 154,
+    "floor_id": 6,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 6_02",
+    "type": "room",
+    "name_eng": "Toilet_F_level 6_02",
+    "x": null,
+    "z": null
+  }
+]
