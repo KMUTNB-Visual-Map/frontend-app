@@ -2,6 +2,7 @@ import { useGLTF } from '@react-three/drei';
 import { useEffect } from 'react';
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { useNavStore } from '../store/useNavStore';
 
 const MODEL_SCALE = 0.1;
 
@@ -27,6 +28,7 @@ interface FloorModelProps {
 
 export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps) {
   const { scene } = useGLTF(`/models/archif${floor}.glb`);
+  const setLastMapClickPoint = useNavStore((state) => state.setLastMapClickPoint);
 
   const { model, offset, metrics } = useMemo(() => {
     const cloned = scene.clone(true);
@@ -81,7 +83,13 @@ export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps
         // 👇 เพิ่ม onClick สำหรับหาพิกัดและบอกชั้น 👇
         onClick={(e) => {
           e.stopPropagation();
-          console.log(`📍 พิกัด 3D -> X: ${e.point.x.toFixed(2)}, Z: ${e.point.z.toFixed(2)} (ชั้น ${floor})`);
+          const clickPoint = {
+            x: e.point.x,
+            z: e.point.z,
+            floor,
+          };
+          setLastMapClickPoint(clickPoint);
+          console.log(`📍 พิกัด 3D -> X: ${clickPoint.x.toFixed(2)}, Z: ${clickPoint.z.toFixed(2)} (ชั้น ${clickPoint.floor})`);
         }}
       >
         <primitive object={model} />

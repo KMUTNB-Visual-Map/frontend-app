@@ -158,6 +158,12 @@ interface FloorMetrics {
   scale: number;
 }
 
+interface MapClickPoint {
+  x: number;
+  z: number;
+  floor: number;
+}
+
 interface NavState {
   userId: string | null;
 
@@ -170,6 +176,7 @@ interface NavState {
   userPosition: [number, number, number];
   rawGpsPosition: [number, number] | null;
   convertedGpsMeters: [number, number] | null;
+  lastMapClickPoint: MapClickPoint | null;
   targetLocation: TargetLocation | null;
   currentFloorMetrics: FloorMetrics | null;
 
@@ -194,6 +201,7 @@ interface NavState {
   cycleCameraMode: () => void;
   setUserActualFloor: (floor: number) => void;
   setCurrentFloorMetrics: (metrics: FloorMetrics) => void;
+  setLastMapClickPoint: (point: MapClickPoint | null) => void;
   cancelSetup: () => void;
 }
 
@@ -282,6 +290,7 @@ export const useNavStore = create<NavState>((set, get) => {
   userPosition: [0, 0, 0],
   rawGpsPosition: null,
   convertedGpsMeters: null,
+  lastMapClickPoint: null,
   targetLocation: null,
   currentFloorMetrics: null,
 
@@ -296,6 +305,8 @@ export const useNavStore = create<NavState>((set, get) => {
   setUserActualFloor: (floor) => set({ userActualFloor: floor }),
 
   setCurrentFloorMetrics: (metrics) => set({ currentFloorMetrics: metrics }),
+
+  setLastMapClickPoint: (point) => set({ lastMapClickPoint: point }),
 
   initGuestId: () => {
     let id = localStorage.getItem('guest_id');
