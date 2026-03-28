@@ -1,124 +1,234 @@
 [
   {
-    "node_id": 1,
+    "node_id": 13,
     "floor_id": 1,
-    "name_th": "สมาคมศิษย์เก่า",
-    "name_eng": "Alumni Association",
-    "type": "room",
-    "lng": 100.51377971386,
-    "lat": 13.8211828414507,
-    "x": -2.2,
-    "z": -9.29
-  },
-  {
-    "node_id": 2,
-    "floor_id": 1,
-    "name_th": "สโมสรนิสิต",
-    "name_eng": "Student Association",
-    "type": "room",
-    "lng": 100.513758147492,
-    "lat": 13.821248691387,
-    "x": 0.75,
-    "z": -9.18
-  },
-  {
-    "node_id": 3,
-    "floor_id": 1,
-    "name_th": "ร้านค้า",
-    "name_eng": "Shop",
-    "type": "room",
-    "lng": 100.513699073471,
-    "lat": 13.8211609046339,
-    "x": 0.74,
-    "z": -7.88
-  },
-  {
-    "node_id": 4,
-    "floor_id": 1,
-    "name_th": "บันได 1_01",
-    "name_eng": "Stair 1_01",
-    "type": "stair",
-    "lng": 100.51368651993,
-    "lat": 13.8212495174225,
-    "x": -0.5,
-    "z": -5.7
-  },
-  {
-    "node_id": 6,
-    "floor_id": 1,
-    "name_th": "ลิฟต์_ชั้น 1_01",
-    "name_eng": "Elevator_level 1_01",
-    "type": "elevator",
-    "lng": 100.513593080411,
-    "lat": 13.8211993627484,
-    "x": -1.4,
-    "z": -4.4
-  },
-  {
-    "node_id": 7,
-    "floor_id": 1,
-    "name_th": "ห้องน้ำ_หญิง_ชั้น 1_01",
-    "name_eng": "Toilet_F_level 1_01",
-    "type": "room",
-    "lng": 100.513570347373,
-    "lat": 13.8211907382902,
-    "x": 2.52,
-    "z": -3.9
-  },
-  {
-    "node_id": 8,
-    "floor_id": 1,
-    "name_th": "ลิฟต์_ชั้น 1_02",
-    "name_eng": "Elevator_level 1_02",
-    "type": "elevator",
-    "lng": 100.513565131497,
-    "lat": 13.8212168635085,
-    "x": -1.4,
-    "z": -3.6
-  },
-  {
-    "node_id": 9,
-    "floor_id": 1,
-    "name_th": "ห้องน้ำ_ชาย_ชั้น 1_01",
-    "name_eng": "Toilet_M_level 1_01",
-    "type": "room",
-    "lng": 100.513524478847,
-    "lat": 13.8212182853882,
-    "x": 2.39,
-    "z": -2.77
-  },
-  {
-    "node_id": 5,
-    "floor_id": 1,
-    "name_th": "บันได_ชั้น 1_01",
-    "name_eng": "Stair_level 1_01",
-    "type": "stair",
-    "lng": 100.513614646217,
-    "lat": 13.8211891038913,
-    "x": -1.5,
-    "z": -5.1
-  },
-  {
-    "node_id": 10,
-    "floor_id": 1,
-    "name_th": "บันได 1_02",
-    "name_eng": "Stair 1_02",
-    "type": "stair",
-    "lng": 100.513483845744,
-    "lat": 13.8212239701813,
-    "x": -1.65,
-    "z": 6.25
-  },
-  {
-    "node_id": 11,
-    "floor_id": 1,
-    "name_th": "ทางเดิน 1_01",
-    "name_eng": "Hallway 1_01",
+    "name_th": "ทางเดิน 1_02",
+    "name_eng": "Hallway 1_02",
     "type": "hallway",
-    "lng": 100.513568648904,
-    "lat": 13.8213211277661,
-    "x": -1.3,
+    "lng": 100.513434018642,
+    "lat": 13.8214045431539,
+    "x": -0.5,
     "z": 2.5
+  },
+  {
+    "node_id": 38,
+    "floor_id": 3,
+    "name_th": "กองบริการการศึกษา",
+    "name_eng": "Academic Office",
+    "type": "room",
+    "lng": 100.513601902716,
+    "lat": 13.8212618257425,
+    "x": -0.6,
+    "z": -3.51
+  },
+  {
+    "node_id": 41,
+    "floor_id": 3,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 3_01",
+    "name_eng": "Toilet_F_level 3_01",
+    "type": "room",
+    "lng": 100.513572302087,
+    "lat": 13.8211995449624,
+    "x": 2.41,
+    "z": -3.07
+  },
+  {
+    "node_id": 33,
+    "floor_id": 2,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 2_02",
+    "name_eng": "Toilet_M_level 2_02",
+    "type": "room",
+    "lng": 100.513326732899,
+    "lat": 13.8215622729457,
+    "x": -2.75,
+    "z": 7.26
+  },
+  {
+    "node_id": 28,
+    "floor_id": 2,
+    "name_th": "ห้องประชุมชั้น2",
+    "name_eng": "Meeting_room_2",
+    "type": "room",
+    "lng": 100.513412013622,
+    "lat": 13.8213071428194,
+    "x": 2.34,
+    "z": 1.48
+  },
+  {
+    "node_id": 45,
+    "floor_id": 3,
+    "name_th": "แผนกการเงิน",
+    "name_eng": "Finance Office",
+    "type": "room",
+    "lng": 100.513500138777,
+    "lat": 13.821288097184,
+    "x": -0.16,
+    "z": -0.22
+  },
+  {
+    "node_id": 55,
+    "floor_id": 3,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 3_02",
+    "name_eng": "Toilet_M_level 3_02",
+    "type": "room",
+    "lng": 100.513325414994,
+    "lat": 13.8215656879899,
+    "x": -2.85,
+    "z": 7.57
+  },
+  {
+    "node_id": 46,
+    "floor_id": 3,
+    "name_th": "ห้องทานอาหาร",
+    "name_eng": "breaking room",
+    "type": "room",
+    "lng": 100.513466207837,
+    "lat": 13.821267682069,
+    "x": 2.12,
+    "z": 0.31
+  },
+  {
+    "node_id": 48,
+    "floor_id": 3,
+    "name_th": "ห้องหัวหน้าสำนักงาน",
+    "name_eng": "Office Head Room",
+    "type": "room",
+    "lng": 100.513410617899,
+    "lat": 13.8213041381014,
+    "x": 2.12,
+    "z": 1.99
+  },
+  {
+    "node_id": 26,
+    "floor_id": 2,
+    "name_th": "ห้องควบคุม",
+    "name_eng": "Control_room",
+    "type": "room",
+    "lng": 100.513491188014,
+    "lat": 13.8212535505662,
+    "x": 1.99,
+    "z": -0.78
+  },
+  {
+    "node_id": 23,
+    "floor_id": 2,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 2_01",
+    "name_eng": "Toilet_F_level 2_01",
+    "type": "room",
+    "lng": 100.513577681063,
+    "lat": 13.8211993616704,
+    "x": 2.38,
+    "z": -3.33
+  },
+  {
+    "node_id": 19,
+    "floor_id": 2,
+    "name_th": "ห้องภาควิชาไฟฟ้าและคอมพิวเตอร์",
+    "name_eng": "Department of Electrical and Computer Engineering",
+    "type": "room",
+    "lng": 100.513649182536,
+    "lat": 13.8213258615255,
+    "x": -0.71,
+    "z": -2.89
+  },
+  {
+    "node_id": 34,
+    "floor_id": 2,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 2_02",
+    "name_eng": "Toilet_F_level 2_02",
+    "type": "room",
+    "lng": 100.513308413832,
+    "lat": 13.8215747347455,
+    "x": -2.68,
+    "z": 7.7
+  },
+  {
+    "node_id": 56,
+    "floor_id": 3,
+    "name_th": "ห้องน้ำ_หญิง_ชั้น 3_02",
+    "name_eng": "Toilet_F_level 3_02",
+    "type": "room",
+    "lng": 100.51330807091,
+    "lat": 13.8215773354511,
+    "x": -2.65,
+    "z": 8.05
+  },
+  {
+    "node_id": 25,
+    "floor_id": 2,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 2_01",
+    "name_eng": "Toilet_M_level 2_01",
+    "type": "room",
+    "lng": 100.513539688801,
+    "lat": 13.8212250444777,
+    "x": 2.37,
+    "z": -2.39
+  },
+  {
+    "node_id": 43,
+    "floor_id": 3,
+    "name_th": "ห้องน้ำ_ชาย_ชั้น 3_01",
+    "name_eng": "Toilet_M_level 3_01",
+    "type": "room",
+    "lng": 100.513531241487,
+    "lat": 13.8212254506181,
+    "x": 2.35,
+    "z": -2.12
+  },
+  {
+    "node_id": 30,
+    "floor_id": 2,
+    "name_th": "ห้องคณบดี",
+    "name_eng": "Dean's Office",
+    "type": "room",
+    "lng": 100.513247180359,
+    "lat": 13.8214170860898,
+    "x": 2.53,
+    "z": 9.86
+  },
+  {
+    "node_id": 36,
+    "floor_id": 3,
+    "name_th": "ห้องประชุมวิจิตรวาที",
+    "name_eng": "Lecture Theater",
+    "type": "room",
+    "lng": 100.513647979097,
+    "lat": 13.8211927082279,
+    "x": 0.92,
+    "z": -7.31
+  },
+  {
+    "node_id": 47,
+    "floor_id": 3,
+    "name_th": "ห้องประชุมย่อย",
+    "name_eng": "small meeting room",
+    "type": "room",
+    "lng": 100.51342371883,
+    "lat": 13.8212953504309,
+    "x": 2.51,
+    "z": 1.21
+  },
+  {
+    "node_id": 49,
+    "floor_id": 3,
+    "name_th": "ห้องทำงานผู้เชี่ยวชาญ",
+    "name_eng": "Office",
+    "type": "room",
+    "lng": 100.513373643453,
+    "lat": 13.8213277529119,
+    "x": 2.22,
+    "z": 2.78
+  },
+  {
+    "node_id": 52,
+    "floor_id": 3,
+    "name_th": "ห้องเอนกประสงค์",
+    "name_eng": "Multipurpose room",
+    "type": "room",
+    "lng": 100.513218483465,
+    "lat": 13.8213700123893,
+    "x": 2.16,
+    "z": 4.44
   },
   {
     "node_id": 12,
@@ -130,17 +240,6 @@
     "lat": 13.8213710923208,
     "x": null,
     "z": null
-  },
-  {
-    "node_id": 13,
-    "floor_id": 1,
-    "name_th": "ทางเดิน 1_02",
-    "name_eng": "Hallway 1_02",
-    "type": "hallway",
-    "lng": 100.513434018642,
-    "lat": 13.8214045431539,
-    "x": -0.5,
-    "z": 2.5
   },
   {
     "node_id": 14,
@@ -185,17 +284,6 @@
     "lat": 13.8211905253864,
     "x": null,
     "z": null
-  },
-  {
-    "node_id": 38,
-    "floor_id": 3,
-    "name_th": "กองบริการการศึกษา",
-    "name_eng": "Academic Office",
-    "type": "room",
-    "lng": 100.513601902716,
-    "lat": 13.8212618257425,
-    "x": -0.6,
-    "z": -3.51
   },
   {
     "node_id": 54,
@@ -407,39 +495,6 @@
     "z": null
   },
   {
-    "node_id": 41,
-    "floor_id": 3,
-    "name_th": "ห้องน้ำ_หญิง_ชั้น 3_01",
-    "name_eng": "Toilet_F_level 3_01",
-    "type": "room",
-    "lng": 100.513572302087,
-    "lat": 13.8211995449624,
-    "x": 2.41,
-    "z": -3.07
-  },
-  {
-    "node_id": 33,
-    "floor_id": 2,
-    "name_th": "ห้องน้ำ_ชาย_ชั้น 2_02",
-    "name_eng": "Toilet_M_level 2_02",
-    "type": "room",
-    "lng": 100.513326732899,
-    "lat": 13.8215622729457,
-    "x": -2.75,
-    "z": 7.26
-  },
-  {
-    "node_id": 28,
-    "floor_id": 2,
-    "name_th": "ห้องประชุมชั้น2",
-    "name_eng": "Meeting_room_2",
-    "type": "room",
-    "lng": 100.513412013622,
-    "lat": 13.8213071428194,
-    "x": 2.34,
-    "z": 1.48
-  },
-  {
     "node_id": 32,
     "floor_id": 2,
     "name_th": "บันได_ชั้น 2_02",
@@ -451,28 +506,6 @@
     "z": null
   },
   {
-    "node_id": 45,
-    "floor_id": 3,
-    "name_th": "แผนกการเงิน",
-    "name_eng": "Finance Office",
-    "type": "room",
-    "lng": 100.513500138777,
-    "lat": 13.821288097184,
-    "x": -0.16,
-    "z": -0.22
-  },
-  {
-    "node_id": 55,
-    "floor_id": 3,
-    "name_th": "ห้องน้ำ_ชาย_ชั้น 3_02",
-    "name_eng": "Toilet_M_level 3_02",
-    "type": "room",
-    "lng": 100.513325414994,
-    "lat": 13.8215656879899,
-    "x": -2.85,
-    "z": 7.57
-  },
-  {
     "node_id": 64,
     "floor_id": 4,
     "name_th": "ห้องน้ำ_หญิง_ชั้น 4_01",
@@ -482,28 +515,6 @@
     "lat": 13.8211990661342,
     "x": null,
     "z": null
-  },
-  {
-    "node_id": 46,
-    "floor_id": 3,
-    "name_th": "ห้องทานอาหาร",
-    "name_eng": "breaking room",
-    "type": "room",
-    "lng": 100.513466207837,
-    "lat": 13.821267682069,
-    "x": 2.12,
-    "z": 0.31
-  },
-  {
-    "node_id": 48,
-    "floor_id": 3,
-    "name_th": "ห้องหัวหน้าสำนักงาน",
-    "name_eng": "Office Head Room",
-    "type": "room",
-    "lng": 100.513410617899,
-    "lat": 13.8213041381014,
-    "x": 2.12,
-    "z": 1.99
   },
   {
     "node_id": 94,
@@ -592,17 +603,6 @@
     "lat": 13.8213855499931,
     "x": null,
     "z": null
-  },
-  {
-    "node_id": 26,
-    "floor_id": 2,
-    "name_th": "ห้องควบคุม",
-    "name_eng": "Control_room",
-    "type": "room",
-    "lng": 100.513491188014,
-    "lat": 13.8212535505662,
-    "x": 1.99,
-    "z": -0.78
   },
   {
     "node_id": 71,
@@ -814,17 +814,6 @@
     "z": null
   },
   {
-    "node_id": 23,
-    "floor_id": 2,
-    "name_th": "ห้องน้ำ_หญิง_ชั้น 2_01",
-    "name_eng": "Toilet_F_level 2_01",
-    "type": "room",
-    "lng": 100.513577681063,
-    "lat": 13.8211993616704,
-    "x": 2.38,
-    "z": -3.33
-  },
-  {
     "node_id": 16,
     "floor_id": 1,
     "name_th": "บันได_ชั้น 1_02",
@@ -834,17 +823,6 @@
     "lat": 13.8215385985499,
     "x": null,
     "z": null
-  },
-  {
-    "node_id": 19,
-    "floor_id": 2,
-    "name_th": "ห้องภาควิชาไฟฟ้าและคอมพิวเตอร์",
-    "name_eng": "Department of Electrical and Computer Engineering",
-    "type": "room",
-    "lng": 100.513649182536,
-    "lat": 13.8213258615255,
-    "x": -0.71,
-    "z": -2.89
   },
   {
     "node_id": 63,
@@ -858,50 +836,6 @@
     "z": null
   },
   {
-    "node_id": 34,
-    "floor_id": 2,
-    "name_th": "ห้องน้ำ_หญิง_ชั้น 2_02",
-    "name_eng": "Toilet_F_level 2_02",
-    "type": "room",
-    "lng": 100.513308413832,
-    "lat": 13.8215747347455,
-    "x": -2.68,
-    "z": 7.7
-  },
-  {
-    "node_id": 56,
-    "floor_id": 3,
-    "name_th": "ห้องน้ำ_หญิง_ชั้น 3_02",
-    "name_eng": "Toilet_F_level 3_02",
-    "type": "room",
-    "lng": 100.51330807091,
-    "lat": 13.8215773354511,
-    "x": -2.65,
-    "z": 8.05
-  },
-  {
-    "node_id": 25,
-    "floor_id": 2,
-    "name_th": "ห้องน้ำ_ชาย_ชั้น 2_01",
-    "name_eng": "Toilet_M_level 2_01",
-    "type": "room",
-    "lng": 100.513539688801,
-    "lat": 13.8212250444777,
-    "x": 2.37,
-    "z": -2.39
-  },
-  {
-    "node_id": 43,
-    "floor_id": 3,
-    "name_th": "ห้องน้ำ_ชาย_ชั้น 3_01",
-    "name_eng": "Toilet_M_level 3_01",
-    "type": "room",
-    "lng": 100.513531241487,
-    "lat": 13.8212254506181,
-    "x": 2.35,
-    "z": -2.12
-  },
-  {
     "node_id": 93,
     "floor_id": 4,
     "name_th": "ห้องน้ำ_ชาย_ชั้น 4_02",
@@ -911,61 +845,6 @@
     "lat": 13.8215611047217,
     "x": null,
     "z": null
-  },
-  {
-    "node_id": 30,
-    "floor_id": 2,
-    "name_th": "ห้องคณบดี",
-    "name_eng": "Dean's Office",
-    "type": "room",
-    "lng": 100.513247180359,
-    "lat": 13.8214170860898,
-    "x": 2.53,
-    "z": 9.86
-  },
-  {
-    "node_id": 36,
-    "floor_id": 3,
-    "name_th": "ห้องประชุมวิจิตรวาที",
-    "name_eng": "Lecture Theater",
-    "type": "room",
-    "lng": 100.513647979097,
-    "lat": 13.8211927082279,
-    "x": 0.92,
-    "z": -7.31
-  },
-  {
-    "node_id": 47,
-    "floor_id": 3,
-    "name_th": "ห้องประชุมย่อย",
-    "name_eng": "small meeting room",
-    "type": "room",
-    "lng": 100.51342371883,
-    "lat": 13.8212953504309,
-    "x": 2.51,
-    "z": 1.21
-  },
-  {
-    "node_id": 49,
-    "floor_id": 3,
-    "name_th": "ห้องทำงานผู้เชี่ยวชาญ",
-    "name_eng": "Office",
-    "type": "room",
-    "lng": 100.513373643453,
-    "lat": 13.8213277529119,
-    "x": 2.22,
-    "z": 2.78
-  },
-  {
-    "node_id": 52,
-    "floor_id": 3,
-    "name_th": "ห้องเอนกประสงค์",
-    "name_eng": "Multipurpose room",
-    "type": "room",
-    "lng": 100.513218483465,
-    "lat": 13.8213700123893,
-    "x": 2.16,
-    "z": 4.44
   },
   {
     "node_id": 86,
