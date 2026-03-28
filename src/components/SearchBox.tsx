@@ -1,61 +1,49 @@
 import { useState, useMemo } from 'react';
 import { useNavStore } from '../store/useNavStore';
-// ✅ ตอนนี้จะหาไฟล์เจอแล้วถ้าทำตามข้อ 1
-import { LANDMARKS_DATA } from '../data/landmark'; 
+import TODOLIST_DATA from '../data/todolist.json';
 
-// ✅ กำหนด Interface ให้ตรงกับ Supabase (lng/lat, name_th/eng)
 interface Landmark {
   node_id: number;
   floor_id: number;
   name_th: string;
   name_eng: string;
   type: string;
-  lng: number;
-  lat: number;
+  x: number;
+  z: number;
 }
 const ALLOWED_TYPES = ['elevator', 'room', 'stair'];
 export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const { setTarget } = useNavStore();
-
-// ✅ กำหนดรายการ Type ที่อนุญาตให้แสดง
+  const { setTarget, setUserPosition } = useNavStore();
 
 const suggestions = useMemo<Landmark[]>(() => {
   const trimmedQuery = query.trim().toLowerCase();
-  // 1. กรองเฉพาะ 
-  // 1. กรองเฉพาะ Type ที่เราต้องการก่อน (elevator, room, stair)
-  const filteredByType = LANDMARKS_DATA.filter(loc => 
+  const filteredByType = TODOLIST_DATA.filter((loc) =>
     ALLOWED_TYPES.includes(loc.type.toLowerCase())
   );
 
-  // 2. ถ้าไม่ได้พิมพ์อะไร ให้โชว์ 5 อันแรกจากรายการที่กรองแล้ว
   if (!trimmedQuery) {
     return filteredByType.slice(0, 5);
   }
 
-  // 3. ค้นหาจากรายการที่กรอง Type มาแล้วเท่านั้น
-  return filteredByType.filter(loc => 
+  return filteredByType.filter((loc) =>
     loc.name_th.toLowerCase().includes(trimmedQuery) ||
     loc.name_eng.toLowerCase().includes(trimmedQuery)
-  ).slice(0, 8); 
+  ).slice(0, 8);
 }, [query]);
 
-
-  // ✅ ใส่ Type ให้ loc: Landmark
   const handleSelect = (loc: Landmark) => {
-    console.log("📍 Selected:", loc);
-    setQuery(''); 
+    setQuery('');
     setIsFocused(false);
-    
-    // ส่งค่าเข้า Store (อ้างอิงตามโครงสร้าง Store ของคุณ)
+
+    // Temporary teleport source: use world x/z from todolist.json
+    setUserPosition([loc.x, 0, loc.z]);
     setTarget({
       location_id: loc.node_id,
       node_id: loc.node_id,
       name_th: loc.name_th,
       floor: loc.floor_id,
-      lat: loc.lat,
-      lon: loc.lng,
     });
   };
 
@@ -75,7 +63,7 @@ const suggestions = useMemo<Landmark[]>(() => {
         <div className="absolute w-full mt-2 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 overflow-hidden z-[100] max-h-[350px] overflow-y-auto">
           {suggestions.map((loc) => (
             <div
-              key={loc.node_id}
+              key={`${loc.node_id}-${loc.floor_id}-${loc.name_eng}`}
               onClick={() => handleSelect(loc)}
               className="px-5 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-none transition-colors group"
             >
