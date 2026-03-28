@@ -6,11 +6,15 @@ import {
   ContactShadows,
 } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useNavStore } from '../store/useNavStore';
+import { gpsToWorldXZ, useNavStore } from '../store/useNavStore';
 import FloorModel from './FloorModel';
 import Avatar from './Avatar.jsx';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+
+// Toggle keyboard walking without changing existing navigation flows.
+const ENABLE_AVATAR_WASD_MOVEMENT = true;
+const AVATAR_WASD_MOVE_SPEED = 1.5;
 
 export default function MapCanvas() {
   const {
@@ -28,6 +32,7 @@ export default function MapCanvas() {
   const { gl, camera } = useThree();
   const movingPositionRef = useRef<[number, number, number]>(userPosition);
   const publishAccumulatorRef = useRef(0);
+  const pressedKeysRef = useRef(new Set<string>());
   const followCameraHeightRef = useRef(1.3);
   const followYawCurrentRef = useRef(-Math.PI / 2);
   const followYawTargetRef = useRef<number | null>(null);
@@ -50,6 +55,43 @@ export default function MapCanvas() {
   useEffect(() => {
     movingPositionRef.current = userPosition;
   }, [userPosition]);
+
+  useEffect(() => {
+    if (!ENABLE_AVATAR_WASD_MOVEMENT) return;
+
+    const allowedKeys = new Set(['w', 'a', 's', 'd']);
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (!allowedKeys.has(key)) return;
+
+      pressedKeysRef.current.add(key);
+      event.preventDefault();
+    };
+
+    const onKeyUp = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (!allowedKeys.has(key)) return;
+
+      pressedKeysRef.current.delete(key);
+      event.preventDefault();
+    };
+
+    const onWindowBlur = () => {
+      pressedKeysRef.current.clear();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', onWindowBlur);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', onWindowBlur);
+      pressedKeysRef.current.clear();
+    };
+  }, []);
 
   // -----------------------------
   // Auto Focus Camera after floor selection
@@ -186,17 +228,11 @@ export default function MapCanvas() {
     if (!targetLocation) return null;
 
     if (
-      typeof targetLocation.x === 'number' &&
-      typeof targetLocation.z === 'number'
+      typeof targetLocation.lat === 'number' &&
+      typeof targetLocation.lon === 'number'
     ) {
-      return [targetLocation.x, targetLocation.z];
-    }
-
-    if (typeof targetLocation.node_id === 'number') {
-      const nodeId = targetLocation.node_id;
-      const fallbackX = ((nodeId % 100) - 50) / 5;
-      const fallbackZ = (Math.floor(nodeId / 100) - 3) * 4;
-      return [fallbackX, fallbackZ];
+      const transformed = gpsToWorldXZ(targetLocation.lat, targetLocation.lon);
+      return [transformed.worldX, transformed.worldZ];
     }
 
     return null;
@@ -346,6 +382,34 @@ export default function MapCanvas() {
 
     let nextPosition: [number, number, number] = movingPositionRef.current;
     const shouldMoveToTarget = !isFollowing && targetWorldPosition !== null;
+    const shouldMoveByKeyboard =
+      ENABLE_AVATAR_WASD_MOVEMENT &&
+      !isFollowing &&
+      !shouldMoveToTarget &&
+      pressedKeysRef.current.size > 0;
+    let shouldPublishPosition = false;
+
+    if (shouldMoveByKeyboard) {
+      const moveX =
+        (pressedKeysRef.current.has('d') ? 1 : 0) -
+        (pressedKeysRef.current.has('a') ? 1 : 0);
+      const moveZ =
+        (pressedKeysRef.current.has('s') ? 1 : 0) -
+        (pressedKeysRef.current.has('w') ? 1 : 0);
+
+      if (moveX !== 0 || moveZ !== 0) {
+        const moveVec = new THREE.Vector2(moveX, moveZ).normalize();
+        const step = AVATAR_WASD_MOVE_SPEED * delta;
+
+        nextPosition = [
+          nextPosition[0] + moveVec.x * step,
+          0,
+          nextPosition[2] + moveVec.y * step,
+        ];
+        movingPositionRef.current = nextPosition;
+        shouldPublishPosition = true;
+      }
+    }
 
     if (shouldMoveToTarget && targetWorldPosition) {
       const [tx, tz] = targetWorldPosition;
@@ -361,8 +425,12 @@ export default function MapCanvas() {
         const nz = nextPosition[2] + (dz / distance) * step;
         nextPosition = [nx, 0, nz];
         movingPositionRef.current = nextPosition;
+        shouldPublishPosition = true;
       }
 
+    }
+
+    if (shouldPublishPosition) {
       publishAccumulatorRef.current += delta;
       const publishStep = 1 / 30;
       if (publishAccumulatorRef.current >= publishStep) {
