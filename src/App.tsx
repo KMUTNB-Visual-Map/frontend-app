@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import MapCanvas from './canvas/MapCanvas'; 
 import OverlayUI from './components/OverlayUI';
