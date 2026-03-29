@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavStore } from '../store/useNavStore';
-import TODOLIST_DATA from '../data/todolist.json';
+import LANDMARK_ROWS_DATA from '../data/landmark_rows.json';
 
 interface Landmark {
   node_id: number;
@@ -19,7 +19,7 @@ export default function SearchBox() {
 
 const suggestions = useMemo<Landmark[]>(() => {
   const trimmedQuery = query.trim().toLowerCase();
-  const filteredByType = TODOLIST_DATA.filter((loc) =>
+  const filteredByType = LANDMARK_ROWS_DATA.filter((loc) =>
     ALLOWED_TYPES.includes(loc.type.toLowerCase())
   );
 
@@ -37,7 +37,7 @@ const suggestions = useMemo<Landmark[]>(() => {
     setQuery('');
     setIsFocused(false);
 
-    // Temporary teleport source: use world x/z from todolist.json
+    // Teleport source: use world x/z from landmark_rows.json
     setUserPosition([loc.x, 0, loc.z]);
     setTarget({
       location_id: loc.node_id,

@@ -29,7 +29,7 @@
   {
     "node_id": 4,
     "floor_id": 1,
-    "name_th": "บันได 1_01",
+    "name_th": "บันได เข้าลานอเนกชั้น1",
     "type": "stair",
     "name_eng": "Stair 1_01",
     "x": -0.5,
@@ -92,7 +92,7 @@
   {
     "node_id": 11,
     "floor_id": 1,
-    "name_th": "ทางเดิน 1_01",
+    "name_th": "ทางเดิน ภายในลานอเนกชั้น 1",
     "type": "hallway",
     "name_eng": "Hallway 1_01",
     "x": -1.3,
@@ -101,29 +101,29 @@
   {
     "node_id": 12,
     "floor_id": 1,
-    "name_th": "ทางเดิน 1_05",
+    "name_th": "ทางเดินหน้าร้านค้า",
     "type": "hallway",
     "name_eng": "Hallway 1_05",
-    "x": 2.45,
-    "z": 2.5
+    "x": 0.05,
+    "z": -6.63
   },
   {
     "node_id": 13,
     "floor_id": 1,
-    "name_th": "ทางเดิน 1_02",
+    "name_th": "ทางเดินเข้ามาจากตึก40",
     "type": "hallway",
     "name_eng": "Hallway 1_02",
     "x": -0.5,
-    "z": 2.5
+    "z": -9.78
   },
   {
     "node_id": 14,
     "floor_id": 1,
-    "name_th": "ทางเดิน 1_03",
+    "name_th": "ทางเดินไปทาง89",
     "type": "hallway",
     "name_eng": "Hallway 1_03",
-    "x": 0.35,
-    "z": 2.5
+    "x": -1.33,
+    "z": 7.8
   },
   {
     "node_id": 15,
@@ -146,11 +146,11 @@
   {
     "node_id": 17,
     "floor_id": 1,
-    "name_th": "ทางเดิน 1_04",
+    "name_th": "ทางเดินไปตึก84",
     "type": "hallway",
     "name_eng": "Hallway 1_04",
-    "x": 1.25,
-    "z": 2.5
+    "x": -1.7,
+    "z": 2.2
   },
   {
     "node_id": 18,
@@ -173,16 +173,16 @@
   {
     "node_id": 20,
     "floor_id": 2,
-    "name_th": "ทางเดิน 2_01",
+    "name_th": "ทางเชื่อมไปตึก84",
     "type": "hallway",
     "name_eng": "Hallway 2_01",
-    "x": -0.9,
-    "z": -1.12
+    "x": -1.63,
+    "z": -1.73
   },
   {
     "node_id": 21,
     "floor_id": 2,
-    "name_th": "ทางเดิน 2_02",
+    "name_th": "ทางเดินหน้าลิฟต์ชั้น 2",
     "type": "stair",
     "name_eng": "Hallway 2_02",
     "x": 0.8,
@@ -191,7 +191,7 @@
   {
     "node_id": 22,
     "floor_id": 2,
-    "name_th": "ทางเดิน 2_03",
+    "name_th": "ทางเดินไปทางตึกด้านหลัง",
     "type": "elevator",
     "name_eng": "Hallway 2_03",
     "x": -1.33,
@@ -209,7 +209,7 @@
   {
     "node_id": 24,
     "floor_id": 2,
-    "name_th": "ทางเดิน 2_04",
+    "name_th": "ทางเดินหน้าห้องผู้ช่วยคณบดี",
     "type": "elevator",
     "name_eng": "Hallway 2_04",
     "x": 1.85,
@@ -236,11 +236,11 @@
   {
     "node_id": 27,
     "floor_id": 2,
-    "name_th": "ทางเดิน 2_05",
+    "name_th": "ทางเดินลานอนกชั้น2",
     "type": "hallway",
     "name_eng": "Hallway 2_05",
-    "x": -1.6,
-    "z": -1.8
+    "x": -0.9,
+    "z": 1.75
   },
   {
     "node_id": 28,
@@ -326,7 +326,7 @@
   {
     "node_id": 37,
     "floor_id": 3,
-    "name_th": "ทางเดิน 3_01",
+    "name_th": "ทางเดินหน้าลิฟต์ชั้น 3",
     "type": "hallway",
     "name_eng": "Hallway 3_01",
     "x": -0.8,
@@ -344,7 +344,7 @@
   {
     "node_id": 39,
     "floor_id": 3,
-    "name_th": "ทางเดิน 3_02",
+    "name_th": "ทางเชื่อมไปตึก84",
     "type": "stair",
     "name_eng": "Hallway 3_02",
     "x": -1.6,
@@ -353,7 +353,7 @@
   {
     "node_id": 40,
     "floor_id": 3,
-    "name_th": "ทางเดิน 3_03",
+    "name_th": "ทางเดินในสำนักงาน",
     "type": "elevator",
     "name_eng": "Hallway 3_03",
     "x": 1.12,
@@ -371,7 +371,7 @@
   {
     "node_id": 42,
     "floor_id": 3,
-    "name_th": "ทางเดิน 3_04",
+    "name_th": "ทางเดินไปทางตึกด้านหลัง",
     "type": "elevator",
     "name_eng": "Hallway 3_04",
     "x": -1.3,
@@ -389,11 +389,11 @@
   {
     "node_id": 44,
     "floor_id": 3,
-    "name_th": "ทางเดิน 3_06",
+    "name_th": "ทางเดินหน้าลิฟต์ชั้น 3(ซ้ำ)",
     "type": "hallway",
     "name_eng": "Hallway 3_06",
-    "x": null,
-    "z": null
+    "x": -0.8,
+    "z": -4.25
   },
   {
     "node_id": 45,
@@ -443,11 +443,11 @@
   {
     "node_id": 50,
     "floor_id": 3,
-    "name_th": "ทางเดิน 3_02",
+    "name_th": "ทางเดินหน้าลิฟต์ชั้น 3(ซ้ำ)",
     "type": "hallway",
-    "name_eng": "Hallway 3_02",
-    "x": null,
-    "z": null
+    "name_eng": "Hallway 3_05",
+    "x": -0.8,
+    "z": -4.25
   },
   {
     "node_id": 51,
@@ -509,8 +509,8 @@
     "name_th": "ศูนย์อบรมวิทยาการด้านหุ่นยนต์",
     "type": "room",
     "name_eng": "Robot Academy",
-    "x": null,
-    "z": null
+    "x": -0.52,
+    "z": 9.50
   },
   {
     "node_id": 58,
@@ -527,8 +527,8 @@
     "name_th": "1402",
     "type": "room",
     "name_eng": "1402",
-    "x": null,
-    "z": null
+    "x": -0.5,
+    "z": -4.67
   },
   {
     "node_id": 60,
@@ -536,8 +536,8 @@
     "name_th": "1403",
     "type": "room",
     "name_eng": "1403",
-    "x": null,
-    "z": null
+    "x": 0.36,
+    "z": -5.54
   },
   {
     "node_id": 61,
@@ -545,8 +545,8 @@
     "name_th": "1404",
     "type": "room",
     "name_eng": "1404",
-    "x": null,
-    "z": null
+    "x": 1.20,
+    "z": -5.54
   },
   {
     "node_id": 62,
@@ -563,8 +563,8 @@
     "name_th": "ลิฟต์_ชั้น 4_01",
     "type": "elevator",
     "name_eng": "Elevator_level 4_01",
-    "x": null,
-    "z": null
+    "x": 1.45,
+    "z": -3.7
   },
   {
     "node_id": 64,
@@ -572,8 +572,8 @@
     "name_th": "ห้องน้ำ_หญิง_ชั้น 4_01",
     "type": "room",
     "name_eng": "Toilet_F_level 4_01",
-    "x": null,
-    "z": null
+    "x": -2.20,
+    "z": 8.10
   },
   {
     "node_id": 65,
@@ -581,8 +581,8 @@
     "name_th": "ลิฟต์_ชั้น 4_02",
     "type": "elevator",
     "name_eng": "Elevator_level 4_02",
-    "x": null,
-    "z": null
+    "x": 1.45,
+    "z": -2.75
   },
   {
     "node_id": 66,
@@ -590,13 +590,13 @@
     "name_th": "ห้องน้ำ_ชาย_ชั้น 4_01",
     "type": "room",
     "name_eng": "Toilet_M_level 4_01",
-    "x": null,
-    "z": null
+    "x": 1.45,
+    "z": -2.07
   },
   {
     "node_id": 67,
     "floor_id": 4,
-    "name_th": "ทางเดิน 4_01",
+    "name_th": "ทางเดินหน้าลิฟต์ชั้น 4",
     "type": "hallway",
     "name_eng": "Hallway 4_01",
     "x": 0.72,
@@ -608,13 +608,13 @@
     "name_th": "1436",
     "type": "room",
     "name_eng": "1436",
-    "x": null,
-    "z": null
+    "x": -0.9,
+    "z": -1.7
   },
   {
     "node_id": 69,
     "floor_id": 4,
-    "name_th": "ทางเดิน 4_02",
+    "name_th": "ทางเดินเข้าภาคอุตสาหการชั",
     "type": "hallway",
     "name_eng": "Hallway 4_02",
     "x": -1.57,
@@ -626,8 +626,8 @@
     "name_th": "1433",
     "type": "room",
     "name_eng": "1433",
-    "x": null,
-    "z": null
+    "x": -0.75,
+    "z": 2.25
   },
   {
     "node_id": 71,
@@ -635,8 +635,8 @@
     "name_th": "1408",
     "type": "room",
     "name_eng": "1408",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": -1.25
   },
   {
     "node_id": 72,
@@ -644,8 +644,8 @@
     "name_th": "1409",
     "type": "room",
     "name_eng": "1409",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z":-0.50
   },
   {
     "node_id": 73,
@@ -653,8 +653,8 @@
     "name_th": "1410",
     "type": "room",
     "name_eng": "1410",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": 0.40
   },
   {
     "node_id": 74,
@@ -662,8 +662,8 @@
     "name_th": "1411",
     "type": "room",
     "name_eng": "1411",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": 1.2
   },
   {
     "node_id": 75,
@@ -671,8 +671,8 @@
     "name_th": "1412",
     "type": "room",
     "name_eng": "1412",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": 2.00
   },
   {
     "node_id": 76,
@@ -680,8 +680,8 @@
     "name_th": "1413",
     "type": "room",
     "name_eng": "1413",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": 2.85
   },
   {
     "node_id": 77,
@@ -689,8 +689,8 @@
     "name_th": "1414",
     "type": "room",
     "name_eng": "1414",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": 3.70
   },
   {
     "node_id": 78,
@@ -698,8 +698,8 @@
     "name_th": "1415",
     "type": "room",
     "name_eng": "1415",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": 4.45
   },
   {
     "node_id": 79,
@@ -707,8 +707,8 @@
     "name_th": "1416",
     "type": "room",
     "name_eng": "1416",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": 5.4
   },
   {
     "node_id": 80,
@@ -716,8 +716,8 @@
     "name_th": "1417",
     "type": "room",
     "name_eng": "1417",
-    "x": null,
-    "z": null
+    "x": 0.85,
+    "z": 6.25
   },
   {
     "node_id": 81,
@@ -725,13 +725,13 @@
     "name_th": "1432",
     "type": "room",
     "name_eng": "1432",
-    "x": null,
-    "z": null
+    "x": -0.75,
+    "z": 6.20
   },
   {
     "node_id": 82,
     "floor_id": 4,
-    "name_th": "ทางเดิน 4_03",
+    "name_th": "ทางเดินหน้าห้องพักอาจารย์",
     "type": "hallway",
     "name_eng": "Hallway 4_03",
     "x": 0.25,
@@ -743,17 +743,17 @@
     "name_th": "พื้นที่ทำงานร่วมกัน",
     "type": "room",
     "name_eng": "co-workingspace",
-    "x": null,
-    "z": null
+    "x": 1.1,
+    "z": 7.8
   },
   {
     "node_id": 84,
     "floor_id": 4,
-    "name_th": "ทางเดิน 4_04",
+    "name_th": "ทางเดินหน้าห้องเรียนหลังห้องพักอาจารย์ชั้น 4",
     "type": "hallway",
     "name_eng": "Hallway 4_04",
-    "x": 0.11,
-    "z": 3.49
+    "x": 1.90,
+    "z": 2.38
   },
   {
     "node_id": 85,
@@ -761,8 +761,8 @@
     "name_th": "1431",
     "type": "room",
     "name_eng": "1431",
-    "x": null,
-    "z": null
+    "x": 2.00,
+    "z": 8.00
   },
   {
     "node_id": 86,
@@ -770,8 +770,8 @@
     "name_th": "ห้องเรียน1",
     "type": "room",
     "name_eng": "Lecture_room_1",
-    "x": null,
-    "z": null
+    "x": 2.6,
+    "z": 5.9
   },
   {
     "node_id": 87,
@@ -779,8 +779,8 @@
     "name_th": "ห้องเรียน2",
     "type": "room",
     "name_eng": "Lecture_room_2",
-    "x": null,
-    "z": null
+    "x": 2.6,
+    "z": 4.25
   },
   {
     "node_id": 88,
@@ -788,8 +788,8 @@
     "name_th": "ห้องเรียน3",
     "type": "room",
     "name_eng": "Lecture_room_3",
-    "x": null,
-    "z": null
+    "x": 2.6,
+    "z": 2.5
   },
   {
     "node_id": 89,
@@ -797,13 +797,13 @@
     "name_th": "ห้องเรียน4",
     "type": "room",
     "name_eng": "Lecture_room_4",
-    "x": null,
-    "z": null
+    "x": 2.6,
+    "z": 0.75
   },
   {
     "node_id": 90,
     "floor_id": 4,
-    "name_th": "ทางเดิน 4_05",
+    "name_th": "ทางเดินหน้าบันไดด้านหลังชั้น 4",
     "type": "hallway",
     "name_eng": "Hallway 4_05",
     "x": 0.6,
@@ -812,11 +812,11 @@
   {
     "node_id": 91,
     "floor_id": 4,
-    "name_th": "ทางเดิน 4_06",
+    "name_th": "ทางเดินหน้าบันไดด้านหลังชั้น 4(ซ้ำ)",
     "type": "hallway",
     "name_eng": "Hallway 4_06",
-    "x": null,
-    "z": null
+    "x": 0.6,
+    "z": 7.72
   },
   {
     "node_id": 92,
@@ -833,8 +833,8 @@
     "name_th": "ห้องน้ำ_ชาย_ชั้น 4_02",
     "type": "room",
     "name_eng": "Toilet_M_level 4_02",
-    "x": null,
-    "z": null
+    "x": -2.2,
+    "z": 7.5
   },
   {
     "node_id": 94,
@@ -842,8 +842,8 @@
     "name_th": "ห้องน้ำ_หญิง_ชั้น 4_02",
     "type": "room",
     "name_eng": "Toilet_F_level 4_02",
-    "x": null,
-    "z": null
+    "x": -2.25,
+    "z": 8.1
   },
   {
     "node_id": 95,
@@ -851,8 +851,8 @@
     "name_th": "506",
     "type": "room",
     "name_eng": "506",
-    "x": null,
-    "z": null
+    "x": -0.45,
+    "z": -7.85
   },
   {
     "node_id": 96,
@@ -860,8 +860,8 @@
     "name_th": "504",
     "type": "room",
     "name_eng": "504",
-    "x": null,
-    "z": null
+    "x": 0.40,
+    "z": -7.85
   },
   {
     "node_id": 97,
@@ -869,13 +869,13 @@
     "name_th": "507",
     "type": "room",
     "name_eng": "507",
-    "x": null,
-    "z": null
+    "x": -0.6,
+    "z": -6.35
   },
   {
     "node_id": 98,
     "floor_id": 5,
-    "name_th": "ทางเดิน หน้าลิฟต์ชั้น 5",
+    "name_th": "ทางเดินหน้าลิฟต์ชั้น 5",
     "type": "hallway",
     "name_eng": "Hallway in front of elevator",
     "x": 0.72,
@@ -887,13 +887,13 @@
     "name_th": "505",
     "type": "room",
     "name_eng": "505",
-    "x": null,
-    "z": null
+    "x": 0.93,
+    "z": -6.00
   },
   {
     "node_id": 100,
     "floor_id": 5,
-    "name_th": "ทางเดิน 5_02",
+    "name_th": "ทางเดินหน้าห้อง504,506",
     "type": "hallway",
     "name_eng": "Hallway 5_02",
     "x": 0.23,
@@ -905,8 +905,8 @@
     "name_th": "508",
     "type": "room",
     "name_eng": "508",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": -4.3
   },
   {
     "node_id": 102,
@@ -914,8 +914,8 @@
     "name_th": "509",
     "type": "room",
     "name_eng": "509",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": -1.25
   },
   {
     "node_id": 103,
@@ -923,8 +923,8 @@
     "name_th": "513",
     "type": "room",
     "name_eng": "513",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 0.75
   },
   {
     "node_id": 104,
@@ -932,8 +932,8 @@
     "name_th": "515",
     "type": "room",
     "name_eng": "515",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 2.45
   },
   {
     "node_id": 105,
@@ -941,8 +941,8 @@
     "name_th": "519",
     "type": "room",
     "name_eng": "519",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 4.1
   },
   {
     "node_id": 106,
@@ -950,8 +950,8 @@
     "name_th": "521",
     "type": "room",
     "name_eng": "521",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 5.8
   },
   {
     "node_id": 107,
@@ -959,8 +959,8 @@
     "name_th": "523",
     "type": "room",
     "name_eng": "523",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 8.25
   },
   {
     "node_id": 108,
@@ -968,16 +968,16 @@
     "name_th": "526",
     "type": "room",
     "name_eng": "526",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 10.00
   },
   {
     "node_id": 109,
     "floor_id": 5,
-    "name_th": "ทางเดิน 5_03",
+    "name_th": "ทางเดินหน้าบันไดข้างหลังชั้น 5",
     "type": "hallway",
     "name_eng": "Hallway 5_03",
-    "x": 0.22,
+    "x": -0.89,
     "z": 6.97
   },
   {
@@ -1004,8 +1004,8 @@
     "name_th": "ห้องน้ำ_หญิง_ชั้น 5_01",
     "type": "room",
     "name_eng": "Toilet_F_level 5_01",
-    "x": null,
-    "z": null
+    "x": 1.5,
+    "z": -3.25
   },
   {
     "node_id": 113,
@@ -1022,8 +1022,8 @@
     "name_th": "ห้องน้ำ_ชาย_ชั้น 5_01",
     "type": "room",
     "name_eng": "Toilet_M_level 5_01",
-    "x": null,
-    "z": null
+    "x": 1.50,
+    "z": -2.1
   },
   {
     "node_id": 115,
@@ -1031,8 +1031,8 @@
     "name_th": "510",
     "type": "room",
     "name_eng": "510",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": -1.30
   },
   {
     "node_id": 116,
@@ -1040,8 +1040,8 @@
     "name_th": "514",
     "type": "room",
     "name_eng": "514",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": 1.35
   },
   {
     "node_id": 117,
@@ -1049,8 +1049,8 @@
     "name_th": "518",
     "type": "room",
     "name_eng": "518",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": 2.95
   },
   {
     "node_id": 118,
@@ -1058,26 +1058,26 @@
     "name_th": "520",
     "type": "room",
     "name_eng": "520",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": 5.8
   },
   {
     "node_id": 119,
     "floor_id": 5,
-    "name_th": "ทางเดิน 5_04",
+    "name_th": "ทางเดินหน้าห้อง523",
     "type": "hallway",
     "name_eng": "Hallway 5_04",
-    "x": null,
-    "z": null
+    "x": 0.21,
+    "z": 9.08
   },
   {
     "node_id": 120,
     "floor_id": 5,
-    "name_th": "ทางเดิน 5_05",
+    "name_th": "ทางเดินหลักหน้าห้องเรียนชั้น 5",
     "type": "hallway",
     "name_eng": "Hallway 5_05",
-    "x": null,
-    "z": null
+    "x": 0.3,
+    "z": 2.03
   },
   {
     "node_id": 121,
@@ -1094,8 +1094,8 @@
     "name_th": "ห้องน้ำ_ชาย_ชั้น 5_02",
     "type": "room",
     "name_eng": "Toilet_M_level 5_02",
-    "x": null,
-    "z": null
+    "x": -2.25,
+    "z": 7.5
   },
   {
     "node_id": 123,
@@ -1103,8 +1103,8 @@
     "name_th": "ห้องน้ำ_หญิง_ชั้น 5_02",
     "type": "room",
     "name_eng": "Toilet_F_level 5_02",
-    "x": null,
-    "z": null
+    "x": -2.25,
+    "z": 8.1
   },
   {
     "node_id": 124,
@@ -1112,8 +1112,8 @@
     "name_th": "601",
     "type": "room",
     "name_eng": "601",
-    "x": null,
-    "z": null
+    "x": -0.45,
+    "z": -7.85
   },
   {
     "node_id": 125,
@@ -1121,13 +1121,13 @@
     "name_th": "602",
     "type": "room",
     "name_eng": "602",
-    "x": null,
-    "z": null
+    "x": 0.40,
+    "z": -7.85
   },
   {
     "node_id": 126,
     "floor_id": 6,
-    "name_th": "ทางเดิน 6_01",
+    "name_th": "ทางเดินหน้าลิฟต์ชั้น 6",
     "type": "hallway",
     "name_eng": "Hallway 6_01",
     "x": 0.72,
@@ -1139,8 +1139,8 @@
     "name_th": "603",
     "type": "room",
     "name_eng": "603",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": -5.85
   },
   {
     "node_id": 128,
@@ -1148,13 +1148,13 @@
     "name_th": "604",
     "type": "room",
     "name_eng": "604",
-    "x": null,
-    "z": null
+    "x": 0.93,
+    "z": -6.00
   },
   {
     "node_id": 129,
     "floor_id": 6,
-    "name_th": "ทางเดิน 6_02",
+    "name_th": "ทางเดินหน้าห้อง 601",
     "type": "hallway",
     "name_eng": "Hallway 6_02",
     "x": 0.23,
@@ -1184,8 +1184,8 @@
     "name_th": "ห้องน้ำ_หญิง_ชั้น 6_01",
     "type": "room",
     "name_eng": "Toilet_F_level 6_01",
-    "x": null,
-    "z": null
+    "x": 1.5,
+    "z": -3.25
   },
   {
     "node_id": 133,
@@ -1202,8 +1202,8 @@
     "name_th": "ห้องน้ำ_ชาย_ชั้น 6_01",
     "type": "room",
     "name_eng": "Toilet_M_level 6_01",
-    "x": null,
-    "z": null
+    "x": 1.50,
+    "z": -2.1
   },
   {
     "node_id": 135,
@@ -1211,8 +1211,8 @@
     "name_th": "605",
     "type": "room",
     "name_eng": "605",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": -3.4
   },
   {
     "node_id": 136,
@@ -1220,8 +1220,8 @@
     "name_th": "606",
     "type": "room",
     "name_eng": "606",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": -1.30
   },
   {
     "node_id": 137,
@@ -1229,8 +1229,8 @@
     "name_th": "607",
     "type": "room",
     "name_eng": "607",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": -0.9
   },
   {
     "node_id": 138,
@@ -1238,8 +1238,8 @@
     "name_th": "608",
     "type": "room",
     "name_eng": "608",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": 1.35
   },
   {
     "node_id": 139,
@@ -1247,17 +1247,17 @@
     "name_th": "609",
     "type": "room",
     "name_eng": "609",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 0.75
   },
   {
     "node_id": 140,
     "floor_id": 6,
-    "name_th": "ทางเดิน 6_03",
+    "name_th": "ทางเดินหลักหน้าห้องเรียนชั้น 6",
     "type": "hallway",
     "name_eng": "Hallway 6_03",
     "x": 0.22,
-    "z": 6.97
+    "z": 1.63
   },
   {
     "node_id": 141,
@@ -1265,8 +1265,8 @@
     "name_th": "611",
     "type": "room",
     "name_eng": "611",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 2.45
   },
   {
     "node_id": 142,
@@ -1274,8 +1274,8 @@
     "name_th": "610",
     "type": "room",
     "name_eng": "610",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": 2.95
   },
   {
     "node_id": 143,
@@ -1283,8 +1283,8 @@
     "name_th": "613",
     "type": "room",
     "name_eng": "613",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 4.1
   },
   {
     "node_id": 144,
@@ -1292,8 +1292,8 @@
     "name_th": "615",
     "type": "room",
     "name_eng": "615",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 5.8
   },
   {
     "node_id": 145,
@@ -1301,8 +1301,8 @@
     "name_th": "612",
     "type": "room",
     "name_eng": "612",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": 5.8
   },
   {
     "node_id": 146,
@@ -1310,8 +1310,8 @@
     "name_th": "617",
     "type": "room",
     "name_eng": "617",
-    "x": null,
-    "z": null
+    "x": -0.85,
+    "z": 8.25
   },
   {
     "node_id": 147,
@@ -1319,8 +1319,8 @@
     "name_th": "614",
     "type": "room",
     "name_eng": "614",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": 8.25
   },
   {
     "node_id": 148,
@@ -1328,8 +1328,8 @@
     "name_th": "619",
     "type": "room",
     "name_eng": "619",
-    "x": null,
-    "z": null
+   "x": -0.85,
+    "z": 10.00
   },
   {
     "node_id": 149,
@@ -1337,26 +1337,26 @@
     "name_th": "616",
     "type": "room",
     "name_eng": "616",
-    "x": null,
-    "z": null
+    "x": 1.00,
+    "z": 10.00
   },
   {
     "node_id": 150,
     "floor_id": 6,
-    "name_th": "ทางเดิน 6_04",
+    "name_th": "ทางเดินหน้าบันไดด้านหลังชั้น 6",
     "type": "hallway",
     "name_eng": "Hallway 6_04",
-    "x": null,
-    "z": null
+    "x": -1.65,
+    "z": 7.00
   },
   {
     "node_id": 151,
     "floor_id": 6,
-    "name_th": "ทางเดิน 6_05",
+    "name_th": "ทางเดินหน้าห้อง 611",
     "type": "hallway",
     "name_eng": "Hallway 6_05",
-    "x": null,
-    "z": null
+    "x": 0.25,
+    "z": 9.00
   },
   {
     "node_id": 152,
@@ -1373,8 +1373,8 @@
     "name_th": "ห้องน้ำ_ชาย_ชั้น 6_02",
     "type": "room",
     "name_eng": "Toilet_M_level 6_02",
-    "x": null,
-    "z": null
+    "x": -2.25,
+    "z": 7.5
   },
   {
     "node_id": 154,
@@ -1382,7 +1382,7 @@
     "name_th": "ห้องน้ำ_หญิง_ชั้น 6_02",
     "type": "room",
     "name_eng": "Toilet_F_level 6_02",
-    "x": null,
-    "z": null
+    "x": -2.25,
+    "z": 8.1
   }
 ]
