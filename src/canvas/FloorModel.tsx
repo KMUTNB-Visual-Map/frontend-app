@@ -1,10 +1,12 @@
 import { useGLTF } from '@react-three/drei';
 import { useEffect } from 'react';
 import { useMemo } from 'react';
+import { useRef } from 'react';
 import * as THREE from 'three';
 import { useNavStore } from '../store/useNavStore';
 
 const MODEL_SCALE = 0.1;
+const RECALIBRATE_MOVE_COOLDOWN_MS = 1500;
 
 // If your GLB is already Y-up on XZ plane, keep this at 0.
 // If exported as Z-up (common in some DCC tools), set to -Math.PI / 2.
@@ -31,6 +33,7 @@ export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps
   const setLastMapClickPoint = useNavStore((state) => state.setLastMapClickPoint);
   const setUserPosition = useNavStore((state) => state.setUserPosition);
   const isRecalibrating = useNavStore((state) => state.isRecalibrating);
+  const lastRecalibrateMoveAtRef = useRef(0);
 
   const { model, offset, metrics } = useMemo(() => {
     const cloned = scene.clone(true);
@@ -93,6 +96,12 @@ export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps
           setLastMapClickPoint(clickPoint);
 
           if (isRecalibrating) {
+            const now = Date.now();
+            if (now - lastRecalibrateMoveAtRef.current < RECALIBRATE_MOVE_COOLDOWN_MS) {
+              return;
+            }
+
+            lastRecalibrateMoveAtRef.current = now;
             setUserPosition([clickPoint.x, 0, clickPoint.z]);
           }
 

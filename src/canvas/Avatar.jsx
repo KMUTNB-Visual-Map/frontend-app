@@ -1,13 +1,60 @@
 import React, { useEffect, useRef } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 import { useNavStore } from '../store/useNavStore';
+
+const AVATAR_BASE_LIFT_Y = 0.12;
+const AVATAR_RECALIBRATE_LIFT_Y = 0.42;
+const AVATAR_LIFT_DAMP_FACTOR_NEAR = 2.25;
+const AVATAR_LIFT_DAMP_FACTOR_FAR = 6.75;
+const AVATAR_BLUE_MARKER_Y = 0.01;
+const AVATAR_BLUE_MARKER_RADIUS = 0.1;
 
 // 🟢 Component ย่อย: จัดการโหลดโมเดลและแอนิเมชัน
 function AvatarModel({ type }) {
   const { userPosition, isFollowing, isRecalibrating } = useNavStore();
   const group = useRef(null); // ไร้คราบ TypeScript แน่นอนครับ
-  const avatarLiftY = isRecalibrating ? 0.42 : 0.12;
-  const avatarPosition = [userPosition[0], userPosition[1] + avatarLiftY, userPosition[2]];
+  const liftYRef = useRef(
+    isRecalibrating ? AVATAR_RECALIBRATE_LIFT_Y : AVATAR_BASE_LIFT_Y
+  );
+
+  useFrame((_, delta) => {
+    if (!group.current) return;
+
+    const targetLiftY = isRecalibrating
+      ? AVATAR_RECALIBRATE_LIFT_Y
+      : AVATAR_BASE_LIFT_Y;
+
+    const liftDistance = Math.abs(targetLiftY - liftYRef.current);
+    const maxLiftDistance = Math.abs(
+      AVATAR_RECALIBRATE_LIFT_Y - AVATAR_BASE_LIFT_Y
+    );
+    const normalizedDistance = THREE.MathUtils.clamp(
+      maxLiftDistance > 0 ? liftDistance / maxLiftDistance : 0,
+      0,
+      1
+    );
+    const dynamicDamp = THREE.MathUtils.lerp(
+      AVATAR_LIFT_DAMP_FACTOR_NEAR,
+      AVATAR_LIFT_DAMP_FACTOR_FAR,
+      normalizedDistance
+    );
+
+    // Ease-out like motion: fast at start, slower as it nears destination.
+    liftYRef.current = THREE.MathUtils.damp(
+      liftYRef.current,
+      targetLiftY,
+      dynamicDamp,
+      delta
+    );
+
+    group.current.position.set(
+      userPosition[0],
+      userPosition[1] + liftYRef.current,
+      userPosition[2]
+    );
+  });
 
   // 1. โหลดไฟล์ 3D ทั้งหมด (เพิ่มไฟล์เดินของผู้ชายแล้ว)
   const femaleIdle = useGLTF('/models/women_idle.glb');
@@ -41,10 +88,27 @@ function AvatarModel({ type }) {
   }, [actions, names, currentModel]);
 
   return (
-    <group ref={group} position={avatarPosition} scale={[1, 1, 1]}>
-      {/* ใส่ key บังคับโหลดใหม่เวลาสลับโมเดล ป้องกันการซ้อนทับ */}
-      <primitive object={currentModel.scene} key={currentModel.scene.uuid} />
-    </group>
+    <>
+      <group
+        ref={group}
+        position={[
+          userPosition[0],
+          userPosition[1] + liftYRef.current,
+          userPosition[2],
+        ]}
+        scale={[1, 1, 1]}
+      >
+        {/* ใส่ key บังคับโหลดใหม่เวลาสลับโมเดล ป้องกันการซ้อนทับ */}
+        <primitive object={currentModel.scene} key={currentModel.scene.uuid} />
+      </group>
+
+      <mesh
+        position={[userPosition[0], userPosition[1] + AVATAR_BLUE_MARKER_Y, userPosition[2]]}
+      >
+        <sphereGeometry args={[AVATAR_BLUE_MARKER_RADIUS, 20, 20]} />
+        <meshStandardMaterial color="#111111" emissive="#111111" emissiveIntensity={0.35} />
+      </mesh>
+    </>
   );
 }
 

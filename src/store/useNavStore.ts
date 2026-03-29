@@ -456,7 +456,19 @@ export const useNavStore = create<NavState>((set, get) => {
   },
 
   toggleRecalibrateMode: () => {
-    set((state) => ({ isRecalibrating: !state.isRecalibrating }));
+    set((state) => {
+      const nextIsRecalibrating = !state.isRecalibrating;
+
+      if (!nextIsRecalibrating) {
+        return { isRecalibrating: false };
+      }
+
+      return {
+        isRecalibrating: true,
+        targetLocation: null,
+        currentFloor: state.userActualFloor ?? state.currentFloor,
+      };
+    });
   },
   });
 });
