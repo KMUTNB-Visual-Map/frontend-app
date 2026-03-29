@@ -51,8 +51,7 @@ export default function MapCanvas() {
   const shouldRenderAvatar =
     selectedFloor !== null &&
     currentFloor === selectedFloor &&
-    avatarType !== null &&
-    targetLocation === null;
+    avatarType !== null;
 
   useEffect(() => {
     movingPositionRef.current = userPosition;

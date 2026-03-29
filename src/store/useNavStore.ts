@@ -357,7 +357,6 @@ export const useNavStore = create<NavState>((set, get) => {
 
     if (typeof location.floor === 'number') {
       updates.currentFloor = location.floor;
-      updates.userActualFloor = location.floor;
     }
 
     if (typeof location.lat === 'number' && typeof location.lon === 'number') {
@@ -381,7 +380,11 @@ export const useNavStore = create<NavState>((set, get) => {
     set(updates);
   },
 
-  setUserPosition: (position) => set({ userPosition: position }),
+  setUserPosition: (position) =>
+    set((state) => ({
+      userPosition: position,
+      userActualFloor: state.currentFloor,
+    })),
 
   setPreferredTrackingSource: (source) => {
     set({ preferredTrackingSource: source });
