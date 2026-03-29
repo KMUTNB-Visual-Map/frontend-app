@@ -186,6 +186,7 @@ interface NavState {
   cameraMode: 'FREE' | 'FOLLOW';
   isFollowing: boolean;
   isRecalibrating: boolean;
+  showRecalibrationExitConfirm: boolean;
   recalibrateStartPosition: [number, number, number] | null;
   recalibrateStartFloor: number | null;
   trackingSource: TrackingSource;
@@ -203,6 +204,7 @@ interface NavState {
   setUserPosition: (position: [number, number, number]) => void;
   toggleFollowing: () => void;
   toggleRecalibrateMode: () => void;
+  cancelRecalibrationExitConfirm: () => void;
   confirmRecalibrationChanges: () => void;
   discardRecalibrationChanges: () => void;
   switchTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
@@ -306,6 +308,7 @@ export const useNavStore = create<NavState>((set, get) => {
   cameraMode: 'FREE',
   isFollowing: false,
   isRecalibrating: false,
+  showRecalibrationExitConfirm: false,
   recalibrateStartPosition: null,
   recalibrateStartFloor: null,
   trackingSource: 'none',
@@ -466,8 +469,25 @@ export const useNavStore = create<NavState>((set, get) => {
       const nextIsRecalibrating = !state.isRecalibrating;
 
       if (!nextIsRecalibrating) {
+        const startPos = state.recalibrateStartPosition;
+        const startFloor = state.recalibrateStartFloor;
+
+        const moved =
+          startPos !== null &&
+          (Math.abs(state.userPosition[0] - startPos[0]) > 0.001 ||
+            Math.abs(state.userPosition[1] - startPos[1]) > 0.001 ||
+            Math.abs(state.userPosition[2] - startPos[2]) > 0.001);
+
+        const changedFloor =
+          typeof startFloor === 'number' && state.currentFloor !== startFloor;
+
+        if (moved || changedFloor) {
+          return { showRecalibrationExitConfirm: true };
+        }
+
         return {
           isRecalibrating: false,
+          showRecalibrationExitConfirm: false,
           recalibrateStartPosition: null,
           recalibrateStartFloor: null,
         };
@@ -475,6 +495,7 @@ export const useNavStore = create<NavState>((set, get) => {
 
       return {
         isRecalibrating: true,
+        showRecalibrationExitConfirm: false,
         targetLocation: null,
         currentFloor: state.userActualFloor ?? state.currentFloor,
         recalibrateStartPosition: state.userPosition,
@@ -483,9 +504,14 @@ export const useNavStore = create<NavState>((set, get) => {
     });
   },
 
+  cancelRecalibrationExitConfirm: () => {
+    set({ showRecalibrationExitConfirm: false });
+  },
+
   confirmRecalibrationChanges: () => {
     set({
       isRecalibrating: false,
+      showRecalibrationExitConfirm: false,
       recalibrateStartPosition: null,
       recalibrateStartFloor: null,
     });
@@ -495,6 +521,7 @@ export const useNavStore = create<NavState>((set, get) => {
     set((state) => {
       const updates: Partial<NavState> = {
         isRecalibrating: false,
+        showRecalibrationExitConfirm: false,
         recalibrateStartPosition: null,
         recalibrateStartFloor: null,
       };

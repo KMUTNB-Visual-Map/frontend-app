@@ -9,6 +9,10 @@ export default function OverlayUI() {
     toggleFollowing,
     isRecalibrating,
     toggleRecalibrateMode,
+    showRecalibrationExitConfirm,
+    cancelRecalibrationExitConfirm,
+    confirmRecalibrationChanges,
+    discardRecalibrationChanges,
     cameraMode,
     cycleCameraMode,
     userPosition,
@@ -104,6 +108,40 @@ export default function OverlayUI() {
           </div>
         </div>
       </div>
+
+      {showRecalibrationExitConfirm && (
+        <div className="fixed inset-0 z-[1300] pointer-events-auto flex items-center justify-center p-6">
+          <button
+            onClick={() => cancelRecalibrationExitConfirm()}
+            className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+            aria-label="ปิดกล่องแจ้งเตือน"
+          />
+
+          <div className="relative w-full max-w-sm rounded-2xl border border-white/20 bg-slate-900/95 shadow-2xl text-white p-5">
+            <div className="text-sm font-black text-amber-300 uppercase tracking-wide">
+              Recalibrate Changed
+            </div>
+            <div className="mt-2 text-sm font-semibold leading-relaxed text-slate-100">
+              พบการเปลี่ยนตำแหน่งในโหมด Recalibrate ต้องการบันทึกตำแหน่งล่าสุดก่อนปิดหรือไม่?
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => confirmRecalibrationChanges()}
+                className="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 transition-colors font-bold text-sm"
+              >
+                บันทึกแล้วปิด
+              </button>
+              <button
+                onClick={() => discardRecalibrationChanges()}
+                className="py-2 rounded-xl bg-orange-600 hover:bg-orange-500 transition-colors font-bold text-sm"
+              >
+                ไม่บันทึกแล้วปิด
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
