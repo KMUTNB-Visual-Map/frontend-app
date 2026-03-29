@@ -1,8 +1,24 @@
+import { useMemo } from 'react';
 import SearchBox from './SearchBox';
 import FloorSelector from './FloorSelector';
 import SetupModals from './SetupModals'; 
 import { useNavStore } from '../store/useNavStore';
+import LANDMARK_ROWS_DATA from '../data/landmark_rows.json';
    // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
+
+interface LandmarkRow {
+  node_id?: number | null;
+  floor_id: number;
+  name_th?: string;
+  type?: string;
+  x?: number | null;
+  z?: number | null;
+  ax?: number | null;
+  az?: number | null;
+  bx?: number | null;
+  bz?: number | null;
+}
+
 export default function OverlayUI() {
   const {
     isFollowing,
@@ -25,6 +41,73 @@ export default function OverlayUI() {
   const [userX, , userZ] = userPosition;
   const rawLat = rawGpsPosition?.[0];
   const rawLng = rawGpsPosition?.[1];
+
+  const currentNodeName = useMemo(() => {
+    const rows = LANDMARK_ROWS_DATA as LandmarkRow[];
+    const floorRows = rows.filter((row) => row.floor_id === currentFloor);
+
+    if (floorRows.length === 0) {
+      return '-';
+    }
+
+    const pointDistanceSq = (x: number, z: number) => {
+      const dx = userX - x;
+      const dz = userZ - z;
+      return dx * dx + dz * dz;
+    };
+
+    const segmentDistanceSq = (
+      x1: number,
+      z1: number,
+      x2: number,
+      z2: number
+    ) => {
+      const vx = x2 - x1;
+      const vz = z2 - z1;
+      const wx = userX - x1;
+      const wz = userZ - z1;
+      const lenSq = vx * vx + vz * vz;
+
+      if (lenSq <= 0.000001) {
+        return pointDistanceSq(x1, z1);
+      }
+
+      const t = Math.max(0, Math.min(1, (wx * vx + wz * vz) / lenSq));
+      const px = x1 + t * vx;
+      const pz = z1 + t * vz;
+      return pointDistanceSq(px, pz);
+    };
+
+    let nearestName = '-';
+    let nearestDistanceSq = Number.POSITIVE_INFINITY;
+
+    for (const row of floorRows) {
+      let candidateDistanceSq = Number.POSITIVE_INFINITY;
+
+      if (Number.isFinite(row.x) && Number.isFinite(row.z)) {
+        candidateDistanceSq = pointDistanceSq(row.x as number, row.z as number);
+      } else if (
+        Number.isFinite(row.ax) &&
+        Number.isFinite(row.az) &&
+        Number.isFinite(row.bx) &&
+        Number.isFinite(row.bz)
+      ) {
+        candidateDistanceSq = segmentDistanceSq(
+          row.ax as number,
+          row.az as number,
+          row.bx as number,
+          row.bz as number
+        );
+      }
+
+      if (candidateDistanceSq < nearestDistanceSq) {
+        nearestDistanceSq = candidateDistanceSq;
+        nearestName = row.name_th?.trim() || '-';
+      }
+    }
+
+    return nearestName;
+  }, [currentFloor, userX, userZ]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[999] p-6 flex flex-col justify-between">
@@ -59,6 +142,12 @@ export default function OverlayUI() {
 
       <div className="flex justify-center w-full pointer-events-auto">
         <SearchBox />
+      </div>
+
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 pointer-events-none z-[1001]">
+        <div className="bg-slate-900/90 text-white px-4 py-2 rounded-xl border border-white/20 backdrop-blur-sm text-xs font-bold shadow-lg">
+          ตำแหน่งปัจจุบัน: {currentNodeName}
+        </div>
       </div>
 
       <div className="flex justify-between items-end w-full">

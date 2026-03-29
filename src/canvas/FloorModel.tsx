@@ -4,9 +4,12 @@ import { useMemo } from 'react';
 import { useRef } from 'react';
 import * as THREE from 'three';
 import { useNavStore } from '../store/useNavStore';
+import LANDMARK_ROWS_DATA from '../data/landmark_rows.json';
 
 const MODEL_SCALE = 0.1;
-const RECALIBRATE_MOVE_COOLDOWN_MS = 1500;
+const RECALIBRATE_MOVE_COOLDOWN_MS = 500;
+const RECALIBRATE_IDLE_SNAP_MS = 1500;
+const SNAP_POSITION_EPSILON = 0.001;
 
 // If your GLB is already Y-up on XZ plane, keep this at 0.
 // If exported as Z-up (common in some DCC tools), set to -Math.PI / 2.
@@ -28,12 +31,107 @@ interface FloorModelProps {
   onMetricsComputed?: (metrics: FloorRenderMetrics) => void;
 }
 
+interface LandmarkRow {
+  node_id?: number | null;
+  floor_id?: number;
+  type?: string;
+  x?: number | null;
+  z?: number | null;
+  ax?: number | null;
+  az?: number | null;
+  bx?: number | null;
+  bz?: number | null;
+}
+
+interface SnapCandidate {
+  x: number;
+  z: number;
+}
+
 export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps) {
   const { scene } = useGLTF(`/models/archif${floor}.glb`);
   const setLastMapClickPoint = useNavStore((state) => state.setLastMapClickPoint);
   const setUserPosition = useNavStore((state) => state.setUserPosition);
   const isRecalibrating = useNavStore((state) => state.isRecalibrating);
-  const lastRecalibrateMoveAtRef = useRef(0);
+  const userPosition = useNavStore((state) => state.userPosition);
+  const pendingSnapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingClickPositionRef = useRef<[number, number, number] | null>(null);
+  const lastRecalibrateChangeAtRef = useRef(0);
+  const isRecalibratingRef = useRef(isRecalibrating);
+  const userPositionRef = useRef(userPosition);
+
+  useEffect(() => {
+    isRecalibratingRef.current = isRecalibrating;
+  }, [isRecalibrating]);
+
+  useEffect(() => {
+    userPositionRef.current = userPosition;
+  }, [userPosition]);
+
+  const snapCandidates = useMemo(() => {
+    const rows = LANDMARK_ROWS_DATA as LandmarkRow[];
+    const candidates: SnapCandidate[] = [];
+
+    for (const row of rows) {
+      if (row.floor_id !== floor) continue;
+
+      if (Number.isFinite(row.x) && Number.isFinite(row.z)) {
+        candidates.push({ x: row.x as number, z: row.z as number });
+      }
+
+      if (Number.isFinite(row.ax) && Number.isFinite(row.az)) {
+        candidates.push({ x: row.ax as number, z: row.az as number });
+      }
+
+      if (Number.isFinite(row.bx) && Number.isFinite(row.bz)) {
+        candidates.push({ x: row.bx as number, z: row.bz as number });
+      }
+    }
+
+    return candidates;
+  }, [floor]);
+
+  const findNearestCandidate = (x: number, z: number): SnapCandidate | null => {
+    if (snapCandidates.length === 0) {
+      return null;
+    }
+
+    let nearest = snapCandidates[0];
+    let minDistanceSq = Number.POSITIVE_INFINITY;
+
+    for (const candidate of snapCandidates) {
+      const dx = candidate.x - x;
+      const dz = candidate.z - z;
+      const distanceSq = dx * dx + dz * dz;
+
+      if (distanceSq < minDistanceSq) {
+        minDistanceSq = distanceSq;
+        nearest = candidate;
+      }
+    }
+
+    return nearest;
+  };
+
+  useEffect(() => {
+    if (isRecalibrating) {
+      return;
+    }
+
+    if (pendingSnapTimerRef.current) {
+      clearTimeout(pendingSnapTimerRef.current);
+      pendingSnapTimerRef.current = null;
+    }
+    pendingClickPositionRef.current = null;
+  }, [isRecalibrating]);
+
+  useEffect(() => {
+    return () => {
+      if (pendingSnapTimerRef.current) {
+        clearTimeout(pendingSnapTimerRef.current);
+      }
+    };
+  }, []);
 
   const { model, offset, metrics } = useMemo(() => {
     const cloned = scene.clone(true);
@@ -97,12 +195,43 @@ export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps
 
           if (isRecalibrating) {
             const now = Date.now();
-            if (now - lastRecalibrateMoveAtRef.current < RECALIBRATE_MOVE_COOLDOWN_MS) {
+            if (now - lastRecalibrateChangeAtRef.current < RECALIBRATE_MOVE_COOLDOWN_MS) {
               return;
             }
 
-            lastRecalibrateMoveAtRef.current = now;
-            setUserPosition([clickPoint.x, 0, clickPoint.z]);
+            const clickedPosition: [number, number, number] = [clickPoint.x, 0, clickPoint.z];
+            setUserPosition(clickedPosition);
+            lastRecalibrateChangeAtRef.current = now;
+            pendingClickPositionRef.current = clickedPosition;
+
+            if (pendingSnapTimerRef.current) {
+              clearTimeout(pendingSnapTimerRef.current);
+            }
+
+            pendingSnapTimerRef.current = setTimeout(() => {
+              if (!isRecalibratingRef.current) return;
+
+              const pending = pendingClickPositionRef.current;
+              if (!pending) return;
+
+              const latestPosition = userPositionRef.current;
+
+              const unchangedSinceClick =
+                Math.abs(latestPosition[0] - pending[0]) < SNAP_POSITION_EPSILON &&
+                Math.abs(latestPosition[2] - pending[2]) < SNAP_POSITION_EPSILON;
+
+              if (!unchangedSinceClick) {
+                return;
+              }
+
+              const nearest = findNearestCandidate(pending[0], pending[2]);
+              if (!nearest) {
+                return;
+              }
+
+              setUserPosition([nearest.x, 0, nearest.z]);
+              lastRecalibrateChangeAtRef.current = Date.now();
+            }, RECALIBRATE_IDLE_SNAP_MS);
           }
 
           console.log(`📍 พิกัด 3D -> X: ${clickPoint.x.toFixed(2)}, Z: ${clickPoint.z.toFixed(2)} (ชั้น ${clickPoint.floor})`);
