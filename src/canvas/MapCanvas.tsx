@@ -18,6 +18,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 // Temporary keyboard override for manual avatar movement.
 const ENABLE_AVATAR_WASD_MOVEMENT = true;
 const AVATAR_WASD_MOVE_SPEED = 1.5;
+const AVATAR_MOVE_SMOOTHING = 10;
 const ENABLE_AVATAR_AUTO_MOVE_TO_TARGET = false;
 const NAVIGATION_ROUTE_LINE_COLOR = '#22d3ee';
 
@@ -29,6 +30,7 @@ export default function MapCanvas() {
     isFollowing,
     isRecalibrating,
     userPosition,
+    joystickInput,
     avatarType,
     targetLocation,
     navigationPinLocation,
@@ -44,6 +46,7 @@ export default function MapCanvas() {
   const movingPositionRef = useRef<[number, number, number]>(userPosition);
   const publishAccumulatorRef = useRef(0);
   const pressedKeysRef = useRef(new Set<string>());
+  const manualVelocityRef = useRef(new THREE.Vector2(0, 0));
   const followCameraHeightRef = useRef(1.3);
   const followYawCurrentRef = useRef(-Math.PI / 2);
   const followYawTargetRef = useRef<number | null>(null);
@@ -416,7 +419,11 @@ export default function MapCanvas() {
   useFrame((state, delta) => {
     const hasKeyboardInput =
       ENABLE_AVATAR_WASD_MOVEMENT && pressedKeysRef.current.size > 0;
-    const canRunMovement = cameraMode === 'FOLLOW' || isRecalibrating || hasKeyboardInput;
+    const joystickMagnitude = Math.hypot(joystickInput.x, joystickInput.y);
+    const hasJoystickInput =
+      ENABLE_AVATAR_WASD_MOVEMENT && joystickMagnitude > 0.02;
+    const canRunMovement =
+      cameraMode === 'FOLLOW' || isRecalibrating || hasKeyboardInput || hasJoystickInput;
     if (!canRunMovement) return;
     if (!shouldRenderAvatar) return;
 
@@ -426,32 +433,57 @@ export default function MapCanvas() {
       !isFollowing &&
       targetWorldPosition !== null &&
       !isRecalibrating;
-    const shouldMoveByKeyboard =
+    const shouldMoveByManual =
       ENABLE_AVATAR_WASD_MOVEMENT &&
       !shouldMoveToTarget &&
-      pressedKeysRef.current.size > 0;
+      (pressedKeysRef.current.size > 0 || hasJoystickInput);
     let shouldPublishPosition = false;
 
-    if (shouldMoveByKeyboard) {
-      const moveX =
+    if (shouldMoveByManual) {
+      let moveX =
         (pressedKeysRef.current.has('d') ? 1 : 0) -
         (pressedKeysRef.current.has('a') ? 1 : 0);
-      const moveZ =
+      let moveZ =
         (pressedKeysRef.current.has('s') ? 1 : 0) -
         (pressedKeysRef.current.has('w') ? 1 : 0);
 
-      if (moveX !== 0 || moveZ !== 0) {
-        const moveVec = new THREE.Vector2(moveX, moveZ).normalize();
-        const step = AVATAR_WASD_MOVE_SPEED * delta;
+      if (hasJoystickInput) {
+        const forward = new THREE.Vector3();
+        state.camera.getWorldDirection(forward);
+        const forward2D = new THREE.Vector2(forward.x, forward.z);
+        if (forward2D.lengthSq() > 0.0001) {
+          forward2D.normalize();
+        } else {
+          forward2D.set(0, -1);
+        }
+        const right2D = new THREE.Vector2(forward2D.y, -forward2D.x);
+        const joystickForward = -joystickInput.y;
+        const joystickRight = joystickInput.x;
+        moveX += right2D.x * joystickRight + forward2D.x * joystickForward;
+        moveZ += right2D.y * joystickRight + forward2D.y * joystickForward;
+      }
 
+      const moveVec = new THREE.Vector2(moveX, moveZ);
+      const magnitude = Math.min(1, moveVec.length());
+      const direction = magnitude > 0 ? moveVec.normalize() : moveVec;
+      const desiredVelocity = direction.multiplyScalar(
+        AVATAR_WASD_MOVE_SPEED * magnitude
+      );
+      const velocity = manualVelocityRef.current;
+      const smoothFactor = 1 - Math.exp(-AVATAR_MOVE_SMOOTHING * delta);
+      velocity.lerp(desiredVelocity, smoothFactor);
+
+      if (velocity.lengthSq() > 0.000001) {
         nextPosition = [
-          nextPosition[0] + moveVec.x * step,
+          nextPosition[0] + velocity.x * delta,
           0,
-          nextPosition[2] + moveVec.y * step,
+          nextPosition[2] + velocity.y * delta,
         ];
         movingPositionRef.current = nextPosition;
         shouldPublishPosition = true;
       }
+    } else {
+      manualVelocityRef.current.set(0, 0);
     }
 
     if (shouldMoveToTarget && targetWorldPosition) {

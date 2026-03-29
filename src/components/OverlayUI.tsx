@@ -66,6 +66,7 @@ export default function OverlayUI() {
     clearNavigationRoute,
     setFloor,
     setUserActualFloor,
+    setJoystickInput,
   } = useNavStore();
   const [showStartNavigationConfirm, setShowStartNavigationConfirm] = useState(false);
   const [showCancelNavigationConfirm, setShowCancelNavigationConfirm] = useState(false);
@@ -73,11 +74,16 @@ export default function OverlayUI() {
   const [showFlowBFloorChangedConfirm, setShowFlowBFloorChangedConfirm] = useState(false);
   const [showFlowBFloorPicker, setShowFlowBFloorPicker] = useState(false);
   const [flowBConnectorTarget, setFlowBConnectorTarget] = useState<FlowBConnectorTarget | null>(null);
+  const [joystickOffset, setJoystickOffset] = useState({ x: 0, y: 0 });
 
   const flowBNearTimerRef = useRef<number | null>(null);
   const flowBPromptArmedRef = useRef(true);
   const flowBMarkerCounterRef = useRef(0);
   const liveUserPositionRef = useRef<FlowAStartPoint>({ x: 0, z: 0 });
+  const joystickBaseRef = useRef<HTMLDivElement | null>(null);
+  const joystickPointerIdRef = useRef<number | null>(null);
+
+  const JOYSTICK_RADIUS = 52;
 
   const [userX, , userZ] = userPosition;
   const rawLat = rawGpsPosition?.[0];
@@ -97,6 +103,38 @@ export default function OverlayUI() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    return () => {
+      setJoystickInput({ x: 0, y: 0 });
+    };
+  }, [setJoystickInput]);
+
+  const updateJoystickFromPointer = (clientX: number, clientY: number) => {
+    const base = joystickBaseRef.current;
+    if (!base) return;
+
+    const rect = base.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    let dx = clientX - centerX;
+    let dy = clientY - centerY;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance > JOYSTICK_RADIUS) {
+      const scale = JOYSTICK_RADIUS / distance;
+      dx *= scale;
+      dy *= scale;
+    }
+
+    setJoystickOffset({ x: dx, y: dy });
+    setJoystickInput({ x: dx / JOYSTICK_RADIUS, y: dy / JOYSTICK_RADIUS });
+  };
+
+  const resetJoystick = () => {
+    setJoystickOffset({ x: 0, y: 0 });
+    setJoystickInput({ x: 0, y: 0 });
+  };
 
   useEffect(() => {
     const connector = flowBConnectorTarget;
@@ -469,6 +507,45 @@ export default function OverlayUI() {
 
       <div className="flex justify-center w-full pointer-events-auto">
         <SearchBox />
+      </div>
+
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 pointer-events-auto z-[1001]">
+        <div
+          ref={joystickBaseRef}
+          className="relative w-28 h-28 rounded-full border border-white/30 bg-slate-900/70 backdrop-blur-md shadow-2xl touch-none select-none"
+          onPointerDown={(e) => {
+            if (joystickPointerIdRef.current !== null) return;
+            joystickPointerIdRef.current = e.pointerId;
+            e.currentTarget.setPointerCapture(e.pointerId);
+            if (isFollowing) {
+              toggleFollowing();
+            }
+            updateJoystickFromPointer(e.clientX, e.clientY);
+          }}
+          onPointerMove={(e) => {
+            if (joystickPointerIdRef.current !== e.pointerId) return;
+            updateJoystickFromPointer(e.clientX, e.clientY);
+          }}
+          onPointerUp={(e) => {
+            if (joystickPointerIdRef.current !== e.pointerId) return;
+            joystickPointerIdRef.current = null;
+            e.currentTarget.releasePointerCapture(e.pointerId);
+            resetJoystick();
+          }}
+          onPointerCancel={(e) => {
+            if (joystickPointerIdRef.current !== e.pointerId) return;
+            joystickPointerIdRef.current = null;
+            resetJoystick();
+          }}
+        >
+          <div className="absolute inset-3 rounded-full border border-white/20 bg-slate-800/60" />
+          <div
+            className="absolute left-1/2 top-1/2 w-12 h-12 rounded-full bg-white/90 shadow-xl border border-slate-200"
+            style={{
+              transform: `translate(calc(-50% + ${joystickOffset.x}px), calc(-50% + ${joystickOffset.y}px))`,
+            }}
+          />
+        </div>
       </div>
 
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 pointer-events-none z-[1001]">
