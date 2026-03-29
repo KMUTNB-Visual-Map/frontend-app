@@ -5,6 +5,7 @@ import * as THREE from 'three';
 
 interface RedPinProps {
   position: [number, number, number];
+  yaw?: number; // ทิศทางการหมุน (radian)
 }
 
 const PIN_SCALE = 1.00;
@@ -15,7 +16,7 @@ const PIN_POP_BOUNCE_HEIGHT = 0.16;
 const PIN_POP_BOUNCE_SPEED = 8.0;
 const PIN_POP_DAMPING = 3.2;
 
-export default function RedPin({ position }: RedPinProps) {
+export default function RedPin({ position, yaw = 0 }: RedPinProps) {
   const { scene } = useGLTF('/models/redpin.glb');
   const groupRef = useRef<THREE.Group>(null);
   const spawnTimeRef = useRef<number | null>(null);
@@ -53,6 +54,7 @@ export default function RedPin({ position }: RedPinProps) {
       PIN_POP_BOUNCE_HEIGHT;
 
     groupRef.current.position.set(position[0], position[1] + floatY + popBounce, position[2]);
+    groupRef.current.rotation.y = yaw;
   });
 
   return (

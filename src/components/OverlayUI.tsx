@@ -69,6 +69,7 @@ export default function OverlayUI() {
     setFloor,
     setUserActualFloor,
     setJoystickInput,
+    setJoystickActive,
   } = useNavStore();
   const [showStartNavigationConfirm, setShowStartNavigationConfirm] = useState(false);
   const [showCancelNavigationConfirm, setShowCancelNavigationConfirm] = useState(false);
@@ -78,6 +79,7 @@ export default function OverlayUI() {
   const [flowBConnectorTarget, setFlowBConnectorTarget] = useState<FlowBConnectorTarget | null>(null);
   const [joystickOffset, setJoystickOffset] = useState({ x: 0, y: 0 });
   const [showArrivedToast, setShowArrivedToast] = useState(false);
+  const [selectedTransport, setSelectedTransport] = useState<ConnectorType | null>(null);
 
   const flowBNearTimerRef = useRef<number | null>(null);
   const flowBPromptArmedRef = useRef(true);
@@ -111,8 +113,9 @@ export default function OverlayUI() {
   useEffect(() => {
     return () => {
       setJoystickInput({ x: 0, y: 0 });
+      setJoystickActive(false);
     };
-  }, [setJoystickInput]);
+  }, [setJoystickInput, setJoystickActive]);
 
   const updateJoystickFromPointer = (clientX: number, clientY: number) => {
     const base = joystickBaseRef.current;
@@ -205,6 +208,7 @@ export default function OverlayUI() {
       clearNavigationRoute();
       setTarget(null);
       setNavigationPinLocation(null);
+      setSelectedTransport(null);
       setShowArrivedToast(true);
     }
   }, [
@@ -491,7 +495,7 @@ export default function OverlayUI() {
     }
 
     const refreshRoute = () => {
-      const activeTarget = navigationPinLocation ?? targetLocation;
+      let activeTarget = navigationPinLocation ?? targetLocation;
       if (!activeTarget) return;
 
       const destinationFloor =
@@ -499,6 +503,35 @@ export default function OverlayUI() {
 
       if (destinationFloor !== currentFloor) {
         return;
+      }
+
+      if (navigationPinLocation && targetLocation) {
+        const pinAnchor = resolveTargetWorldXZ(navigationPinLocation);
+        const finalAnchor = resolveTargetWorldXZ(targetLocation);
+        const pinFloor = resolveLocationFloor(navigationPinLocation);
+        const finalFloor = resolveLocationFloor(targetLocation);
+
+        if (
+          pinAnchor &&
+          finalAnchor &&
+          (pinFloor ?? currentFloor) === currentFloor &&
+          (finalFloor ?? currentFloor) === currentFloor
+        ) {
+          const dxPin = liveUserPositionRef.current.x - pinAnchor.x;
+          const dzPin = liveUserPositionRef.current.z - pinAnchor.z;
+          const dxFinal = liveUserPositionRef.current.x - finalAnchor.x;
+          const dzFinal = liveUserPositionRef.current.z - finalAnchor.z;
+          const dxPinFinal = pinAnchor.x - finalAnchor.x;
+          const dzPinFinal = pinAnchor.z - finalAnchor.z;
+          const distUserToPin = Math.hypot(dxPin, dzPin);
+          const distUserToFinal = Math.hypot(dxFinal, dzFinal);
+          const distPinToFinal = Math.hypot(dxPinFinal, dzPinFinal);
+          const remainingViaPin = distUserToPin + distPinToFinal;
+
+          if (remainingViaPin > distUserToFinal) {
+            activeTarget = targetLocation;
+          }
+        }
       }
 
       const result = computeFlowAPath({
@@ -607,6 +640,7 @@ export default function OverlayUI() {
             if (isFollowing) {
               toggleFollowing();
             }
+            setJoystickActive(true);
             updateJoystickFromPointer(e.clientX, e.clientY);
           }}
           onPointerMove={(e) => {
@@ -617,11 +651,13 @@ export default function OverlayUI() {
             if (joystickPointerIdRef.current !== e.pointerId) return;
             joystickPointerIdRef.current = null;
             e.currentTarget.releasePointerCapture(e.pointerId);
+            setJoystickActive(false);
             resetJoystick();
           }}
           onPointerCancel={(e) => {
             if (joystickPointerIdRef.current !== e.pointerId) return;
             joystickPointerIdRef.current = null;
+            setJoystickActive(false);
             resetJoystick();
           }}
         >
@@ -787,11 +823,12 @@ export default function OverlayUI() {
                     setFlowBConnectorTarget(null);
                     setFloor(userFloor);
                     setCameraMode('FOLLOW');
-                    startFlowBToNearestConnector('any', userFloor);
+                    setShowTransportChoiceConfirm(true);
                     return;
                   }
 
                   setFlowBConnectorTarget(null);
+                  setSelectedTransport(null);
                   setShowFlowBFloorChangedConfirm(false);
                   setShowFlowBFloorPicker(false);
                   flowBPromptArmedRef.current = true;
@@ -838,6 +875,7 @@ export default function OverlayUI() {
                 onClick={() => {
                   clearNavigationRoute();
                   setFlowBConnectorTarget(null);
+                  setSelectedTransport(null);
                   setShowFlowBFloorChangedConfirm(false);
                   setShowFlowBFloorPicker(false);
                   flowBPromptArmedRef.current = true;
@@ -859,7 +897,10 @@ export default function OverlayUI() {
       {showTransportChoiceConfirm && targetLocation && (
         <div className="fixed inset-0 z-[1402] pointer-events-auto flex items-center justify-center p-6">
           <button
-            onClick={() => setShowTransportChoiceConfirm(false)}
+            onClick={() => {
+              setShowTransportChoiceConfirm(false);
+              setSelectedTransport(null);
+            }}
             className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
             aria-label="ปิดกล่องเลือกวิธีเปลี่ยนชั้น"
           />
@@ -876,6 +917,7 @@ export default function OverlayUI() {
               <button
                 onClick={() => {
                   setShowTransportChoiceConfirm(false);
+                  setSelectedTransport('elevator');
                   startFlowBToNearestConnector('elevator');
                 }}
                 className="py-2 rounded-xl bg-sky-600 hover:bg-sky-500 transition-colors font-bold text-sm"
@@ -885,6 +927,7 @@ export default function OverlayUI() {
               <button
                 onClick={() => {
                   setShowTransportChoiceConfirm(false);
+                  setSelectedTransport('stair');
                   startFlowBToNearestConnector('stair');
                 }}
                 className="py-2 rounded-xl bg-amber-600 hover:bg-amber-500 transition-colors font-bold text-sm"
@@ -984,7 +1027,7 @@ export default function OverlayUI() {
                       setFlowBConnectorTarget(null);
                       const continued = continueFlowAToTarget(selectedFloor, continuationStart);
                       if (!continued) {
-                        startFlowBToNearestConnector('any', selectedFloor, continuationStart);
+                        startFlowBToNearestConnector(selectedTransport ?? 'any', selectedFloor, continuationStart);
                       }
                       return;
                     }
@@ -994,7 +1037,7 @@ export default function OverlayUI() {
                       z: flowBConnectorTarget.z,
                     };
 
-                    startFlowBToNearestConnector('any', selectedFloor, continuationStart);
+                    startFlowBToNearestConnector(selectedTransport ?? 'any', selectedFloor, continuationStart);
                   }}
                   className="py-3 px-2 bg-white border border-[#E2E8F0] rounded-2xl text-[#2A3547] font-bold hover:bg-slate-50 hover:border-[#CBD5E1] transition-all active:scale-95 shadow-sm"
                 >

@@ -227,6 +227,7 @@ interface NavState {
 
   userPosition: [number, number, number];
   joystickInput: { x: number; y: number };
+  joystickActive: boolean;
   rawGpsPosition: [number, number] | null;
   convertedGpsMeters: [number, number] | null;
   lastMapClickPoint: MapClickPoint | null;
@@ -255,6 +256,7 @@ interface NavState {
   setTarget: (location: TargetLocation | null) => void;
   setUserPosition: (position: [number, number, number]) => void;
   setJoystickInput: (input: { x: number; y: number }) => void;
+  setJoystickActive: (active: boolean) => void;
   toggleFollowing: () => void;
   toggleRecalibrateMode: () => void;
   cancelRecalibrationExitConfirm: () => void;
@@ -360,6 +362,7 @@ export const useNavStore = create<NavState>((set, get) => {
 
   userPosition: [0, 0, 0],
   joystickInput: { x: 0, y: 0 },
+  joystickActive: false,
   rawGpsPosition: null,
   convertedGpsMeters: null,
   lastMapClickPoint: null,
@@ -471,6 +474,9 @@ export const useNavStore = create<NavState>((set, get) => {
 
   setJoystickInput: (input) =>
     set({ joystickInput: input }),
+
+  setJoystickActive: (active) =>
+    set({ joystickActive: active }),
 
   setPreferredTrackingSource: (source) => {
     set({ preferredTrackingSource: source });

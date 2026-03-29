@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   OrbitControls,
   PerspectiveCamera,
@@ -21,6 +21,10 @@ const AVATAR_WASD_MOVE_SPEED = 1.5;
 const AVATAR_MOVE_SMOOTHING = 10;
 const ENABLE_AVATAR_AUTO_MOVE_TO_TARGET = false;
 const NAVIGATION_ROUTE_LINE_COLOR = '#22d3ee';
+const NAVIGATION_ARROW_COLOR = '#ef4444';
+const NAVIGATION_ARROW_HEIGHT = 0.18;
+const NAVIGATION_ARROW_RADIUS = 0.07;
+const NAVIGATION_ARROW_Y = 0.13;
 
 export default function MapCanvas() {
   const {
@@ -31,6 +35,7 @@ export default function MapCanvas() {
     isRecalibrating,
     userPosition,
     joystickInput,
+    joystickActive,
     avatarType,
     targetLocation,
     navigationPinLocation,
@@ -50,6 +55,8 @@ export default function MapCanvas() {
   const followCameraHeightRef = useRef(1.3);
   const followYawCurrentRef = useRef(-Math.PI / 2);
   const followYawTargetRef = useRef<number | null>(null);
+  const freeFollowYawRef = useRef<number | null>(null);
+  const freeFollowOffsetRef = useRef<THREE.Vector3 | null>(null);
   const initialSensorHeadingRef = useRef<number | null>(null);
   const lastFocusedFloorRef = useRef<number | null>(null);
 
@@ -187,11 +194,19 @@ export default function MapCanvas() {
     };
   }, [cameraMode]);
 
+  useEffect(() => {
+    if (cameraMode !== 'FREE' || navigationRoutePoints.length < 2) {
+      freeFollowYawRef.current = null;
+      freeFollowOffsetRef.current = null;
+    }
+  }, [cameraMode, navigationRoutePoints.length]);
+
   // -----------------------------
   // Follow Mode Vertical Camera Adjustment
   // -----------------------------
   useEffect(() => {
     if (cameraMode !== 'FOLLOW') return;
+    if (joystickActive) return;
 
     const el = gl.domElement;
     const minHeight = 0.8;
@@ -264,6 +279,63 @@ export default function MapCanvas() {
     return null;
   }, [activePinLocation]);
 
+
+  // --- RedPin Yaw State ---
+  const [redPinYaw, setRedPinYaw] = React.useState(0);
+  // --- Avatar Arrow Yaw State ---
+  const [arrowYaw, setArrowYaw] = React.useState(0);
+
+  // ฟังก์ชันคำนวณ yaw จาก navigationRoutePoints (ใช้กับทั้ง RedPin และ Avatar Arrow)
+  const computeArrowYaw = () => {
+    if (navigationRoutePoints.length < 2) return 0;
+    let fromIndex = 0;
+    let toIndex = 1;
+    let found = false;
+    for (let i = 0; i < navigationRoutePoints.length - 1; i += 1) {
+      const [cx, , cz] = navigationRoutePoints[i];
+      const [nx, , nz] = navigationRoutePoints[i + 1];
+      const dirX = nx - cx;
+      const dirZ = nz - cz;
+      const lenSq = dirX * dirX + dirZ * dirZ;
+      if (lenSq > 0.000001) {
+        fromIndex = i;
+        toIndex = i + 1;
+        found = true;
+        break;
+      }
+    }
+    if (!found) return 0;
+    const [cx, , cz] = navigationRoutePoints[fromIndex];
+    const [nx, , nz] = navigationRoutePoints[toIndex];
+    const dirX = nx - cx;
+    const dirZ = nz - cz;
+    return Math.atan2(dirX, dirZ);
+  };
+
+  // อัพเดต yaw ทุก 1.5 วินาที (RedPin)
+  useEffect(() => {
+    const updateYaw = () => {
+      const yaw = computeArrowYaw();
+      setRedPinYaw(yaw);
+    };
+    updateYaw();
+    const interval = setInterval(updateYaw, 1500);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(navigationRoutePoints), JSON.stringify(targetWorldPosition)]);
+
+  // อัพเดต yaw ทุก 1.5 วินาที (Avatar Arrow)
+  useEffect(() => {
+    const updateYaw = () => {
+      const yaw = computeArrowYaw();
+      setArrowYaw(yaw);
+    };
+    updateYaw();
+    const interval = setInterval(updateYaw, 1500);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(navigationRoutePoints)]);
+
   const handleFloorMetrics = useCallback(
     (metrics: { width: number; depth: number; area: number; scale: number }) => {
       setCurrentFloorMetrics({ floor: currentFloor, ...metrics });
@@ -273,6 +345,7 @@ export default function MapCanvas() {
 
   useEffect(() => {
     if (cameraMode !== 'FREE') return;
+    if (navigationRoutePoints.length >= 2) return;
     if (!targetWorldPosition) return;
 
     const [tx, tz] = targetWorldPosition;
@@ -535,6 +608,21 @@ export default function MapCanvas() {
 
       state.camera.position.set(targetX, targetY, targetZ);
       state.camera.lookAt(nextPosition[0], 1.2, nextPosition[2]);
+    } else if (cameraMode === 'FREE' && navigationRoutePoints.length >= 2) {
+      if (!freeFollowOffsetRef.current) {
+        freeFollowOffsetRef.current = new THREE.Vector3(
+          state.camera.position.x - nextPosition[0],
+          state.camera.position.y - (nextPosition[1] + 1.2),
+          state.camera.position.z - nextPosition[2]
+        );
+      }
+
+      const offset = freeFollowOffsetRef.current;
+      state.camera.position.set(
+        nextPosition[0] + offset.x,
+        nextPosition[1] + 1.2 + offset.y,
+        nextPosition[2] + offset.z
+      );
     }
   });
 
@@ -582,6 +670,7 @@ export default function MapCanvas() {
           <RedPin
             key={activePinLocation?.markerKey ?? `${targetWorldPosition[0]}-${targetWorldPosition[1]}`}
             position={[targetWorldPosition[0], 0, targetWorldPosition[1]]}
+            yaw={redPinYaw}
           />
         )}
 
@@ -592,6 +681,9 @@ export default function MapCanvas() {
             lineWidth={4}
           />
         )}
+
+        {/* Navigation Arrow (restore original logic) */}
+        {/* กรวยสีแดง (avatar arrow) ถูกลบออกตามคำสั่ง */}
 
         {/* Avatar render เฉพาะตอน floor ตรงกัน */}
         {shouldRenderAvatar && <Avatar />}
