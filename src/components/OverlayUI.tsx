@@ -7,7 +7,7 @@ import { computeFlowAPath } from '../core/pathfindingFlowA';
 import LANDMARK_ROWS_DATA from '../data/landmark_rows.json';
    // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
 
-const ENABLE_DEBUG_COORDINATE_PANEL = true;
+const ENABLE_DEBUG_COORDINATE_PANEL = false;
 const FLOW_B_NEAR_CONNECTOR_DISTANCE = 0.9;
 const FLOW_B_NEAR_CONNECTOR_HOLD_MS = 3000;
 

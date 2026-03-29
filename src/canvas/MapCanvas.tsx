@@ -456,7 +456,7 @@ export default function MapCanvas() {
         } else {
           forward2D.set(0, -1);
         }
-        const right2D = new THREE.Vector2(forward2D.y, -forward2D.x);
+        const right2D = new THREE.Vector2(-forward2D.y, forward2D.x);
         const joystickForward = -joystickInput.y;
         const joystickRight = joystickInput.x;
         moveX += right2D.x * joystickRight + forward2D.x * joystickForward;
