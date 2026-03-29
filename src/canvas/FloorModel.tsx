@@ -46,6 +46,7 @@ interface LandmarkRow {
 interface SnapCandidate {
   x: number;
   z: number;
+  distanceSq: number;
 }
 
 export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps) {
@@ -68,44 +69,85 @@ export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps
     userPositionRef.current = userPosition;
   }, [userPosition]);
 
-  const snapCandidates = useMemo(() => {
+  const floorRows = useMemo(() => {
     const rows = LANDMARK_ROWS_DATA as LandmarkRow[];
-    const candidates: SnapCandidate[] = [];
-
-    for (const row of rows) {
-      if (row.floor_id !== floor) continue;
-
-      if (Number.isFinite(row.x) && Number.isFinite(row.z)) {
-        candidates.push({ x: row.x as number, z: row.z as number });
-      }
-
-      if (Number.isFinite(row.ax) && Number.isFinite(row.az)) {
-        candidates.push({ x: row.ax as number, z: row.az as number });
-      }
-
-      if (Number.isFinite(row.bx) && Number.isFinite(row.bz)) {
-        candidates.push({ x: row.bx as number, z: row.bz as number });
-      }
-    }
-
-    return candidates;
+    return rows.filter((row) => row.floor_id === floor);
   }, [floor]);
 
   const findNearestCandidate = (x: number, z: number): SnapCandidate | null => {
-    if (snapCandidates.length === 0) {
+    if (floorRows.length === 0) {
       return null;
     }
 
-    let nearest = snapCandidates[0];
+    const pointDistanceSq = (px: number, pz: number) => {
+      const dx = x - px;
+      const dz = z - pz;
+      return dx * dx + dz * dz;
+    };
+
+    const getNearestPointOnSegment = (
+      ax: number,
+      az: number,
+      bx: number,
+      bz: number
+    ): SnapCandidate => {
+      const vx = bx - ax;
+      const vz = bz - az;
+      const lenSq = vx * vx + vz * vz;
+
+      if (lenSq <= 0.000001) {
+        return {
+          x: ax,
+          z: az,
+          distanceSq: pointDistanceSq(ax, az),
+        };
+      }
+
+      const t = ((x - ax) * vx + (z - az) * vz) / lenSq;
+      const clampedT = Math.max(0, Math.min(1, t));
+      const nearestX = ax + clampedT * vx;
+      const nearestZ = az + clampedT * vz;
+
+      return {
+        x: nearestX,
+        z: nearestZ,
+        distanceSq: pointDistanceSq(nearestX, nearestZ),
+      };
+    };
+
+    let nearest: SnapCandidate | null = null;
     let minDistanceSq = Number.POSITIVE_INFINITY;
 
-    for (const candidate of snapCandidates) {
-      const dx = candidate.x - x;
-      const dz = candidate.z - z;
-      const distanceSq = dx * dx + dz * dz;
+    for (const row of floorRows) {
+      let candidate: SnapCandidate | null = null;
 
-      if (distanceSq < minDistanceSq) {
-        minDistanceSq = distanceSq;
+      if (
+        String(row.type).toLowerCase() === 'hallway' &&
+        Number.isFinite(row.ax) &&
+        Number.isFinite(row.az) &&
+        Number.isFinite(row.bx) &&
+        Number.isFinite(row.bz)
+      ) {
+        candidate = getNearestPointOnSegment(
+          row.ax as number,
+          row.az as number,
+          row.bx as number,
+          row.bz as number
+        );
+      } else if (Number.isFinite(row.x) && Number.isFinite(row.z)) {
+        candidate = {
+          x: row.x as number,
+          z: row.z as number,
+          distanceSq: pointDistanceSq(row.x as number, row.z as number),
+        };
+      }
+
+      if (!candidate) {
+        continue;
+      }
+
+      if (candidate.distanceSq < minDistanceSq) {
+        minDistanceSq = candidate.distanceSq;
         nearest = candidate;
       }
     }
