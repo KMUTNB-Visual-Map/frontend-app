@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import SearchBox from './SearchBox';
 import FloorSelector from './FloorSelector';
 import SetupModals from './SetupModals'; 
-import { useNavStore } from '../store/useNavStore';
+import { gpsToWorldXZ, useNavStore } from '../store/useNavStore';
 import { computeFlowAPath } from '../core/pathfindingFlowA';
 import LANDMARK_ROWS_DATA from '../data/landmark_rows.json';
    // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
@@ -10,6 +10,7 @@ import LANDMARK_ROWS_DATA from '../data/landmark_rows.json';
 const ENABLE_DEBUG_COORDINATE_PANEL = false;
 const FLOW_B_NEAR_CONNECTOR_DISTANCE = 0.9;
 const FLOW_B_NEAR_CONNECTOR_HOLD_MS = 3000;
+const DESTINATION_ARRIVAL_DISTANCE = 0.6;
 
 interface LandmarkRow {
   node_id?: number | null;
@@ -75,11 +76,13 @@ export default function OverlayUI() {
   const [showFlowBFloorPicker, setShowFlowBFloorPicker] = useState(false);
   const [flowBConnectorTarget, setFlowBConnectorTarget] = useState<FlowBConnectorTarget | null>(null);
   const [joystickOffset, setJoystickOffset] = useState({ x: 0, y: 0 });
+  const [showArrivedToast, setShowArrivedToast] = useState(false);
 
   const flowBNearTimerRef = useRef<number | null>(null);
   const flowBPromptArmedRef = useRef(true);
   const flowBMarkerCounterRef = useRef(0);
   const liveUserPositionRef = useRef<FlowAStartPoint>({ x: 0, z: 0 });
+  const arrivalArmedRef = useRef(true);
   const joystickBaseRef = useRef<HTMLDivElement | null>(null);
   const joystickPointerIdRef = useRef<number | null>(null);
 
@@ -175,6 +178,42 @@ export default function OverlayUI() {
     }
   }, [flowBConnectorTarget, showFlowBFloorChangedConfirm, showFlowBFloorPicker, userX, userZ]);
 
+  useEffect(() => {
+    arrivalArmedRef.current = true;
+  }, [targetLocation, navigationPinLocation, hasStartedNavigation, currentFloor]);
+
+  useEffect(() => {
+    if (!hasStartedNavigation) return;
+
+    if (navigationPinLocation) return;
+    const activeTarget = targetLocation;
+    if (!activeTarget) return;
+
+    const destinationFloor = resolveLocationFloor(activeTarget);
+    if (destinationFloor !== null && destinationFloor !== currentFloor) return;
+
+    const targetWorld = resolveTargetWorldXZ(activeTarget);
+    if (!targetWorld) return;
+
+    const dx = userX - targetWorld.x;
+    const dz = userZ - targetWorld.z;
+    const distance = Math.hypot(dx, dz);
+
+    if (distance <= DESTINATION_ARRIVAL_DISTANCE && arrivalArmedRef.current) {
+      arrivalArmedRef.current = false;
+      clearNavigationRoute();
+      setShowArrivedToast(true);
+    }
+  }, [
+    hasStartedNavigation,
+    navigationPinLocation,
+    targetLocation,
+    userX,
+    userZ,
+    currentFloor,
+    clearNavigationRoute,
+  ]);
+
   const getRowAnchor = (row: LandmarkRow): { x: number; z: number } | null => {
     if (Number.isFinite(row.x) && Number.isFinite(row.z)) {
       return { x: row.x as number, z: row.z as number };
@@ -205,6 +244,27 @@ export default function OverlayUI() {
       return floorCandidate;
     }
 
+    return null;
+  };
+
+  const resolveLocationFloor = (loc: typeof targetLocation | null) => {
+    if (!loc) return null;
+    const floorCandidate = (loc as { floor?: unknown; floor_id?: unknown }).floor
+      ?? (loc as { floor?: unknown; floor_id?: unknown }).floor_id;
+    return typeof floorCandidate === 'number' && Number.isFinite(floorCandidate)
+      ? floorCandidate
+      : null;
+  };
+
+  const resolveTargetWorldXZ = (loc: typeof targetLocation | null) => {
+    if (!loc) return null;
+    if (typeof loc.x === 'number' && typeof loc.z === 'number') {
+      return { x: loc.x, z: loc.z };
+    }
+    if (typeof loc.lat === 'number' && typeof loc.lon === 'number') {
+      const transformed = gpsToWorldXZ(loc.lat, loc.lon);
+      return { x: transformed.worldX, z: transformed.worldZ };
+    }
     return null;
   };
 
@@ -575,6 +635,37 @@ export default function OverlayUI() {
           ตำแหน่งปัจจุบัน: {currentNodeName}
         </div>
       </div>
+
+      {showArrivedToast && (
+        <div className="fixed inset-0 z-[1500] pointer-events-auto flex items-center justify-center p-6">
+          <button
+            onClick={() => setShowArrivedToast(false)}
+            className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+            aria-label="ปิดหน้าต่างแจ้งเตือนถึงจุดหมาย"
+          />
+
+          <div className="relative w-full max-w-sm rounded-2xl border border-white/20 bg-emerald-600/95 shadow-2xl text-white p-6">
+            <div className="text-xs font-black uppercase tracking-wide text-emerald-100">
+              Arrived
+            </div>
+            <div className="mt-2 text-lg font-black">
+              ถึงจุดหมายแล้ว
+            </div>
+            <div className="mt-2 text-sm font-semibold text-emerald-50">
+              คุณมาถึงปลายทางที่กำหนดเรียบร้อยแล้ว
+            </div>
+
+            <div className="mt-5 flex justify-end">
+              <button
+                onClick={() => setShowArrivedToast(false)}
+                className="px-4 py-2 rounded-xl bg-white/90 text-emerald-700 font-black text-sm shadow-lg active:scale-95 transition-transform"
+              >
+                รับทราบ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-between items-end w-full">
         <div className="flex flex-col gap-3 pointer-events-auto">
