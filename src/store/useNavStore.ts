@@ -186,6 +186,8 @@ interface NavState {
   cameraMode: 'FREE' | 'FOLLOW';
   isFollowing: boolean;
   isRecalibrating: boolean;
+  recalibrateStartPosition: [number, number, number] | null;
+  recalibrateStartFloor: number | null;
   trackingSource: TrackingSource;
   preferredTrackingSource: Exclude<TrackingSource, 'none'>;
 
@@ -201,6 +203,8 @@ interface NavState {
   setUserPosition: (position: [number, number, number]) => void;
   toggleFollowing: () => void;
   toggleRecalibrateMode: () => void;
+  confirmRecalibrationChanges: () => void;
+  discardRecalibrationChanges: () => void;
   switchTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
   setPreferredTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
   cycleCameraMode: () => void;
@@ -302,6 +306,8 @@ export const useNavStore = create<NavState>((set, get) => {
   cameraMode: 'FREE',
   isFollowing: false,
   isRecalibrating: false,
+  recalibrateStartPosition: null,
+  recalibrateStartFloor: null,
   trackingSource: 'none',
   preferredTrackingSource: DEFAULT_TRACKING_SOURCE,
 
@@ -460,14 +466,49 @@ export const useNavStore = create<NavState>((set, get) => {
       const nextIsRecalibrating = !state.isRecalibrating;
 
       if (!nextIsRecalibrating) {
-        return { isRecalibrating: false };
+        return {
+          isRecalibrating: false,
+          recalibrateStartPosition: null,
+          recalibrateStartFloor: null,
+        };
       }
 
       return {
         isRecalibrating: true,
         targetLocation: null,
         currentFloor: state.userActualFloor ?? state.currentFloor,
+        recalibrateStartPosition: state.userPosition,
+        recalibrateStartFloor: state.userActualFloor ?? state.currentFloor,
       };
+    });
+  },
+
+  confirmRecalibrationChanges: () => {
+    set({
+      isRecalibrating: false,
+      recalibrateStartPosition: null,
+      recalibrateStartFloor: null,
+    });
+  },
+
+  discardRecalibrationChanges: () => {
+    set((state) => {
+      const updates: Partial<NavState> = {
+        isRecalibrating: false,
+        recalibrateStartPosition: null,
+        recalibrateStartFloor: null,
+      };
+
+      if (state.recalibrateStartPosition) {
+        updates.userPosition = state.recalibrateStartPosition;
+      }
+
+      if (typeof state.recalibrateStartFloor === 'number') {
+        updates.userActualFloor = state.recalibrateStartFloor;
+        updates.currentFloor = state.recalibrateStartFloor;
+      }
+
+      return updates;
     });
   },
   });
