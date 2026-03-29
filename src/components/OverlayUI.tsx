@@ -506,7 +506,29 @@ export default function OverlayUI() {
       )}
 
       <div className="flex justify-center w-full pointer-events-auto">
-        <SearchBox />
+        <div className="flex flex-col items-center gap-3">
+          <SearchBox />
+
+          {targetLocation && (
+            <button
+              onClick={() => {
+                if (hasStartedNavigation) {
+                  setShowCancelNavigationConfirm(true);
+                  return;
+                }
+
+                setShowStartNavigationConfirm(true);
+              }}
+              className={`px-5 py-3 rounded-2xl border-2 shadow-xl font-black text-sm transition-all active:scale-95 ${
+                hasStartedNavigation
+                  ? 'bg-emerald-600 border-emerald-400 text-white'
+                  : 'bg-blue-600 border-blue-400 text-white'
+              }`}
+            >
+              {hasStartedNavigation ? 'กำลังนำทาง' : 'เริ่มนำทาง'}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 pointer-events-auto z-[1001]">
@@ -553,28 +575,6 @@ export default function OverlayUI() {
           ตำแหน่งปัจจุบัน: {currentNodeName}
         </div>
       </div>
-
-      {targetLocation && (
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 pointer-events-auto z-[1002]">
-          <button
-            onClick={() => {
-              if (hasStartedNavigation) {
-                setShowCancelNavigationConfirm(true);
-                return;
-              }
-
-              setShowStartNavigationConfirm(true);
-            }}
-            className={`px-5 py-3 rounded-2xl border-2 shadow-xl font-black text-sm transition-all active:scale-95 ${
-              hasStartedNavigation
-                ? 'bg-emerald-600 border-emerald-400 text-white'
-                : 'bg-blue-600 border-blue-400 text-white'
-            }`}
-          >
-            {hasStartedNavigation ? 'กำลังนำทาง' : 'เริ่มนำทาง'}
-          </button>
-        </div>
-      )}
 
       <div className="flex justify-between items-end w-full">
         <div className="flex flex-col gap-3 pointer-events-auto">
