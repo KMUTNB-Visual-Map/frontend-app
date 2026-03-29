@@ -11,7 +11,6 @@ interface Landmark {
   x: number;
   z: number;
 }
-const ALLOWED_TYPES = ['elevator', 'room', 'stair'];
 export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -37,18 +36,15 @@ export default function SearchBox() {
 
 const suggestions = useMemo<Landmark[]>(() => {
   const trimmedQuery = query.trim().toLowerCase();
-  const filteredByType = LANDMARK_ROWS_DATA.filter((loc) =>
-    ALLOWED_TYPES.includes(loc.type.toLowerCase())
-  );
 
   if (!trimmedQuery) {
-    return filteredByType.slice(0, 5);
+    return LANDMARK_ROWS_DATA;
   }
 
-  return filteredByType.filter((loc) =>
+  return LANDMARK_ROWS_DATA.filter((loc) =>
     loc.name_th.toLowerCase().includes(trimmedQuery) ||
     loc.name_eng.toLowerCase().includes(trimmedQuery)
-  ).slice(0, 8);
+  );
 }, [query]);
 
   const handleSelect = (loc: Landmark) => {
