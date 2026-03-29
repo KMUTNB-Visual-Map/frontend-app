@@ -3,6 +3,55 @@ import { PositioningManager } from '../core/positioning';
 
 let positioning: PositioningManager | null = null;
 const AUTO_SWITCH_FLOOR_FROM_TRACKING = false;
+const ENABLE_MOCK_COORDINATE_OVERRIDE = true;
+const MOCK_COORDINATE_URL = '/mock_coordinate.json';
+const MOCK_COORDINATE_REFRESH_MS = 1000;
+
+interface MockCoordinate {
+  x: number;
+  z: number;
+}
+
+let mockCoordinateCache: MockCoordinate | null = null;
+let mockCoordinateLastFetchMs = 0;
+let mockCoordinateFetchPromise: Promise<void> | null = null;
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+async function refreshMockCoordinateCache() {
+  if (!ENABLE_MOCK_COORDINATE_OVERRIDE) return;
+  if (mockCoordinateFetchPromise) return;
+
+  mockCoordinateFetchPromise = (async () => {
+    try {
+      const response = await fetch(MOCK_COORDINATE_URL, { cache: 'no-store' });
+      if (!response.ok) return;
+
+      const parsed = (await response.json()) as Partial<MockCoordinate>;
+      if (isFiniteNumber(parsed.x) && isFiniteNumber(parsed.z)) {
+        mockCoordinateCache = { x: parsed.x, z: parsed.z };
+      }
+    } catch {
+      // keep previous cache if fetch fails
+    } finally {
+      mockCoordinateLastFetchMs = Date.now();
+      mockCoordinateFetchPromise = null;
+    }
+  })();
+}
+
+function getMockCoordinateSnapshot() {
+  if (!ENABLE_MOCK_COORDINATE_OVERRIDE) return null;
+
+  const now = Date.now();
+  if (now - mockCoordinateLastFetchMs >= MOCK_COORDINATE_REFRESH_MS) {
+    void refreshMockCoordinateCache();
+  }
+
+  return mockCoordinateCache;
+}
 
 type TrackingSource = 'gps' | 'none';
 const DEFAULT_TRACKING_SOURCE: Exclude<TrackingSource, 'none'> = 'gps';
@@ -181,6 +230,8 @@ interface NavState {
   convertedGpsMeters: [number, number] | null;
   lastMapClickPoint: MapClickPoint | null;
   targetLocation: TargetLocation | null;
+  navigationPinLocation: TargetLocation | null;
+  navigationRoutePoints: [number, number, number][];
   currentFloorMetrics: FloorMetrics | null;
 
   cameraMode: 'FREE' | 'FOLLOW';
@@ -210,9 +261,13 @@ interface NavState {
   switchTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
   setPreferredTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
   cycleCameraMode: () => void;
+  setCameraMode: (mode: 'FREE' | 'FOLLOW') => void;
   setUserActualFloor: (floor: number) => void;
   setCurrentFloorMetrics: (metrics: FloorMetrics) => void;
   setLastMapClickPoint: (point: MapClickPoint | null) => void;
+  setNavigationPinLocation: (location: TargetLocation | null) => void;
+  setNavigationRoutePoints: (points: [number, number, number][]) => void;
+  clearNavigationRoute: () => void;
   cancelSetup: () => void;
 }
 
@@ -233,8 +288,11 @@ export const useNavStore = create<NavState>((set, get) => {
     if (!state.isFollowing) return;
     if (state.trackingSource !== source) return;
 
-    const mapped = gpsToMapXY(lat, lon);
-    const transformed = mapToWorldXZ(mapped.x, mapped.y);
+    const mockCoordinate = getMockCoordinateSnapshot();
+    const mapped = mockCoordinate ? null : gpsToMapXY(lat, lon);
+    const transformed = mockCoordinate
+      ? { worldX: mockCoordinate.x, worldZ: mockCoordinate.z }
+      : mapToWorldXZ(mapped!.x, mapped!.y);
 
     const convertedMeters = {
       x: transformed.worldX / MAP_CALIBRATION_CONFIG.WORLD_SCALE,
@@ -303,6 +361,8 @@ export const useNavStore = create<NavState>((set, get) => {
   convertedGpsMeters: null,
   lastMapClickPoint: null,
   targetLocation: null,
+  navigationPinLocation: null,
+  navigationRoutePoints: [],
   currentFloorMetrics: null,
 
   cameraMode: 'FREE',
@@ -322,6 +382,12 @@ export const useNavStore = create<NavState>((set, get) => {
   setCurrentFloorMetrics: (metrics) => set({ currentFloorMetrics: metrics }),
 
   setLastMapClickPoint: (point) => set({ lastMapClickPoint: point }),
+
+  setNavigationPinLocation: (location) => set({ navigationPinLocation: location }),
+
+  setNavigationRoutePoints: (points) => set({ navigationRoutePoints: points }),
+
+  clearNavigationRoute: () => set({ navigationRoutePoints: [], navigationPinLocation: null }),
 
   initGuestId: () => {
     let id = localStorage.getItem('guest_id');
@@ -359,12 +425,14 @@ export const useNavStore = create<NavState>((set, get) => {
 
   setTarget: (location) => {
     if (!location) {
-      set({ targetLocation: null });
+      set({ targetLocation: null, navigationRoutePoints: [], navigationPinLocation: null });
       return;
     }
 
     const updates: Partial<NavState> = {
       targetLocation: location,
+      navigationPinLocation: null,
+      navigationRoutePoints: [],
     };
 
     if (typeof location.floor === 'number') {
@@ -429,6 +497,10 @@ export const useNavStore = create<NavState>((set, get) => {
   cycleCameraMode: () => {
     const current = get().cameraMode;
     set({ cameraMode: current === 'FREE' ? 'FOLLOW' : 'FREE' });
+  },
+
+  setCameraMode: (mode) => {
+    set({ cameraMode: mode });
   },
 
   toggleFollowing: () => {

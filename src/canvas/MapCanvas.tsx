@@ -4,6 +4,7 @@ import {
   PerspectiveCamera,
   Environment,
   ContactShadows,
+  Line,
 } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { gpsToWorldXZ, useNavStore } from '../store/useNavStore';
@@ -14,9 +15,11 @@ import HallwaySegments from './HallwaySegments';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
-// Keyboard walking is disabled; recalibration movement uses map click/tap only.
-const ENABLE_AVATAR_WASD_MOVEMENT = false;
+// Temporary keyboard override for manual avatar movement.
+const ENABLE_AVATAR_WASD_MOVEMENT = true;
 const AVATAR_WASD_MOVE_SPEED = 1.5;
+const ENABLE_AVATAR_AUTO_MOVE_TO_TARGET = false;
+const NAVIGATION_ROUTE_LINE_COLOR = '#22d3ee';
 
 export default function MapCanvas() {
   const {
@@ -28,9 +31,14 @@ export default function MapCanvas() {
     userPosition,
     avatarType,
     targetLocation,
+    navigationPinLocation,
+    navigationRoutePoints,
     setUserPosition,
     setCurrentFloorMetrics,
+    toggleFollowing,
   } = useNavStore();
+
+  const activePinLocation = navigationPinLocation ?? targetLocation;
 
   const { gl, camera } = useThree();
   const movingPositionRef = useRef<[number, number, number]>(userPosition);
@@ -68,6 +76,11 @@ export default function MapCanvas() {
       const key = event.key.toLowerCase();
       if (!allowedKeys.has(key)) return;
 
+      // WASD should override live tracking updates while user is moving manually.
+      if (isFollowing) {
+        toggleFollowing();
+      }
+
       pressedKeysRef.current.add(key);
       event.preventDefault();
     };
@@ -94,7 +107,7 @@ export default function MapCanvas() {
       window.removeEventListener('blur', onWindowBlur);
       pressedKeysRef.current.clear();
     };
-  }, []);
+  }, [isFollowing, toggleFollowing]);
 
   // -----------------------------
   // Auto Focus Camera after floor selection
@@ -228,25 +241,25 @@ export default function MapCanvas() {
   }, [cameraMode, gl.domElement]);
 
   const targetWorldPosition = useMemo<[number, number] | null>(() => {
-    if (!targetLocation) return null;
+    if (!activePinLocation) return null;
 
     if (
-      typeof targetLocation.x === 'number' &&
-      typeof targetLocation.z === 'number'
+      typeof activePinLocation.x === 'number' &&
+      typeof activePinLocation.z === 'number'
     ) {
-      return [targetLocation.x, targetLocation.z];
+      return [activePinLocation.x, activePinLocation.z];
     }
 
     if (
-      typeof targetLocation.lat === 'number' &&
-      typeof targetLocation.lon === 'number'
+      typeof activePinLocation.lat === 'number' &&
+      typeof activePinLocation.lon === 'number'
     ) {
-      const transformed = gpsToWorldXZ(targetLocation.lat, targetLocation.lon);
+      const transformed = gpsToWorldXZ(activePinLocation.lat, activePinLocation.lon);
       return [transformed.worldX, transformed.worldZ];
     }
 
     return null;
-  }, [targetLocation]);
+  }, [activePinLocation]);
 
   const handleFloorMetrics = useCallback(
     (metrics: { width: number; depth: number; area: number; scale: number }) => {
@@ -401,19 +414,20 @@ export default function MapCanvas() {
   // Camera Follow Logic
   // -----------------------------
   useFrame((state, delta) => {
-    const canRunMovement = cameraMode === 'FOLLOW' || isRecalibrating;
+    const hasKeyboardInput =
+      ENABLE_AVATAR_WASD_MOVEMENT && pressedKeysRef.current.size > 0;
+    const canRunMovement = cameraMode === 'FOLLOW' || isRecalibrating || hasKeyboardInput;
     if (!canRunMovement) return;
     if (!shouldRenderAvatar) return;
 
     let nextPosition: [number, number, number] = movingPositionRef.current;
     const shouldMoveToTarget =
+      ENABLE_AVATAR_AUTO_MOVE_TO_TARGET &&
       !isFollowing &&
       targetWorldPosition !== null &&
       !isRecalibrating;
     const shouldMoveByKeyboard =
       ENABLE_AVATAR_WASD_MOVEMENT &&
-      isRecalibrating &&
-      !isFollowing &&
       !shouldMoveToTarget &&
       pressedKeysRef.current.size > 0;
     let shouldPublishPosition = false;
@@ -534,8 +548,16 @@ export default function MapCanvas() {
         {/* Search target marker */}
         {targetWorldPosition && (
           <RedPin
-            key={targetLocation?.markerKey ?? `${targetWorldPosition[0]}-${targetWorldPosition[1]}`}
+            key={activePinLocation?.markerKey ?? `${targetWorldPosition[0]}-${targetWorldPosition[1]}`}
             position={[targetWorldPosition[0], 0, targetWorldPosition[1]]}
+          />
+        )}
+
+        {navigationRoutePoints.length >= 2 && (
+          <Line
+            points={navigationRoutePoints}
+            color={NAVIGATION_ROUTE_LINE_COLOR}
+            lineWidth={4}
           />
         )}
 

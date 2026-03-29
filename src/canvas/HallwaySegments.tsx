@@ -17,7 +17,7 @@ interface HallwaySegmentsProps {
 }
 
 const HALLWAY_LINE_Y = 0.15;
-const ENABLE_HALLWAY_SEGMENTS = true;
+const ENABLE_HALLWAY_SEGMENTS = false;
 
 export default function HallwaySegments({ floor }: HallwaySegmentsProps) {
   const segments = useMemo(() => {

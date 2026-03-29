@@ -66,12 +66,15 @@ export default function SearchBox() {
 
 const suggestions = useMemo<Landmark[]>(() => {
   const trimmedQuery = query.trim().toLowerCase();
+  const searchableLandmarks = LANDMARK_ROWS_DATA.filter(
+    (loc) => loc.type.toLowerCase() !== 'hallway'
+  );
 
   if (!trimmedQuery) {
-    return LANDMARK_ROWS_DATA;
+    return searchableLandmarks;
   }
 
-  return LANDMARK_ROWS_DATA.filter((loc) =>
+  return searchableLandmarks.filter((loc) =>
     loc.name_th.toLowerCase().includes(trimmedQuery) ||
     loc.name_eng.toLowerCase().includes(trimmedQuery)
   );
