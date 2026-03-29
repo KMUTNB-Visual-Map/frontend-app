@@ -4,6 +4,7 @@ export default function FloorSelector() {
   const { 
     currentFloor, 
     setFloor,
+    setTarget,
     userId, // ✅ เปลี่ยนจาก guestId เป็น userId ให้ตรงกับ Store ตัวล่าสุด
     userPosition, 
     targetLocation 
@@ -39,6 +40,9 @@ export default function FloorSelector() {
               console.log("----------------------------------");
               
               // เปลี่ยนชั้นที่กำลังดู (ไม่กระทบชั้นจริง)
+              if (f !== currentFloor) {
+                setTarget(null);
+              }
               setFloor(f);
             }}
             className={`w-14 h-14 rounded-2xl shadow-xl font-black transition-all flex items-center justify-center border-2 ${

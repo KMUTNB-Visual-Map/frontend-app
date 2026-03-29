@@ -9,6 +9,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { gpsToWorldXZ, useNavStore } from '../store/useNavStore';
 import FloorModel from './FloorModel';
 import Avatar from './Avatar.jsx';
+import RedPin from './RedPin';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
@@ -50,7 +51,8 @@ export default function MapCanvas() {
   const shouldRenderAvatar =
     selectedFloor !== null &&
     currentFloor === selectedFloor &&
-    avatarType !== null;
+    avatarType !== null &&
+    targetLocation === null;
 
   useEffect(() => {
     movingPositionRef.current = userPosition;
@@ -228,6 +230,13 @@ export default function MapCanvas() {
     if (!targetLocation) return null;
 
     if (
+      typeof targetLocation.x === 'number' &&
+      typeof targetLocation.z === 'number'
+    ) {
+      return [targetLocation.x, targetLocation.z];
+    }
+
+    if (
       typeof targetLocation.lat === 'number' &&
       typeof targetLocation.lon === 'number'
     ) {
@@ -244,6 +253,20 @@ export default function MapCanvas() {
     },
     [currentFloor, setCurrentFloorMetrics]
   );
+
+  useEffect(() => {
+    if (cameraMode !== 'FREE') return;
+    if (!targetWorldPosition) return;
+
+    const [tx, tz] = targetWorldPosition;
+    camera.position.set(tx + 2.8, 2.2, tz + 2.8);
+    camera.lookAt(tx, 1.1, tz);
+
+    if (controlsRef.current) {
+      controlsRef.current.target.set(tx, 1, tz);
+      controlsRef.current.update();
+    }
+  }, [cameraMode, targetWorldPosition, camera]);
 
   // -----------------------------
   // Touch Gesture Lock (mutually exclusive pan vs zoom)
@@ -496,6 +519,14 @@ export default function MapCanvas() {
         <group position={[0, 0, 0]}>
           <FloorModel floor={currentFloor} onMetricsComputed={handleFloorMetrics} />
         </group>
+
+        {/* Search target marker */}
+        {targetWorldPosition && (
+          <RedPin
+            key={targetLocation?.markerKey ?? `${targetWorldPosition[0]}-${targetWorldPosition[1]}`}
+            position={[targetWorldPosition[0], 0, targetWorldPosition[1]]}
+          />
+        )}
 
         {/* Avatar render เฉพาะตอน floor ตรงกัน */}
         {shouldRenderAvatar && <Avatar />}

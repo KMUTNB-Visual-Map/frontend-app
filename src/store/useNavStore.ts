@@ -139,9 +139,12 @@ interface TargetLocation {
   location_id?: number | string;
   node_id?: number;
   name_th?: string;
+  markerKey?: string;
   floor?: number;
   lat?: number;
   lon?: number;
+  x?: number;
+  z?: number;
 }
 
 interface GpsPosition {

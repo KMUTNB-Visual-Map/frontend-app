@@ -15,7 +15,7 @@ const ALLOWED_TYPES = ['elevator', 'room', 'stair'];
 export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const { setTarget, setUserPosition } = useNavStore();
+  const { setTarget } = useNavStore();
 
 const suggestions = useMemo<Landmark[]>(() => {
   const trimmedQuery = query.trim().toLowerCase();
@@ -37,13 +37,14 @@ const suggestions = useMemo<Landmark[]>(() => {
     setQuery('');
     setIsFocused(false);
 
-    // Teleport source: use world x/z from landmark_rows.json
-    setUserPosition([loc.x, 0, loc.z]);
     setTarget({
       location_id: loc.node_id,
       node_id: loc.node_id,
       name_th: loc.name_th,
+      markerKey: `${loc.node_id}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
       floor: loc.floor_id,
+      x: loc.x,
+      z: loc.z,
     });
   };
 
