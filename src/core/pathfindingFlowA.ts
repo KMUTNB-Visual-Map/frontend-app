@@ -187,30 +187,6 @@ function buildHallwaySegments(rows: LandmarkRow[], floorId: number): HallwaySegm
   return hallways;
 }
 
-function findNearestHallway(point: Vec2, hallways: HallwaySegment[]): {
-  hallway: HallwaySegment;
-  projection: ProjectionResult;
-} | null {
-  if (hallways.length === 0) return null;
-
-  let bestHallway = hallways[0];
-  let bestProjection = projectPointToSegment(point, hallways[0].a, hallways[0].b);
-
-  for (let i = 1; i < hallways.length; i += 1) {
-    const hallway = hallways[i];
-    const projection = projectPointToSegment(point, hallway.a, hallway.b);
-    if (projection.distanceSq < bestProjection.distanceSq) {
-      bestHallway = hallway;
-      bestProjection = projection;
-    }
-  }
-
-  return {
-    hallway: bestHallway,
-    projection: bestProjection,
-  };
-}
-
 function buildHallwayAdjacency(hallways: HallwaySegment[]): Array<Array<{ to: number; cost: number; connector: Vec2 }>> {
   const graph: Array<Array<{ to: number; cost: number; connector: Vec2 }>> =
     hallways.map(() => []);
@@ -241,7 +217,7 @@ function dijkstra(
   graph: Array<Array<{ to: number; cost: number; connector: Vec2 }>>,
   startIndex: number,
   endIndex: number
-): { pathIndices: number[]; connectors: Vec2[] } | null {
+): { pathIndices: number[]; connectors: Vec2[]; cost: number } | null {
   const size = graph.length;
   const dist = new Array<number>(size).fill(Number.POSITIVE_INFINITY);
   const prev = new Array<number>(size).fill(-1);
@@ -300,6 +276,7 @@ function dijkstra(
   return {
     pathIndices,
     connectors,
+    cost: dist[endIndex],
   };
 }
 
@@ -335,25 +312,66 @@ export function computeFlowAPath(request: FlowARequest): FlowAResult {
     };
   }
 
-  const startHallwayInfo = findNearestHallway(request.currentPosition, hallways);
-  const endHallwayInfo = findNearestHallway(destinationAnchor, hallways);
+  const graph = buildHallwayAdjacency(hallways);
 
-  if (!startHallwayInfo || !endHallwayInfo) {
-    return {
-      ok: false,
-      reason: 'hallway-not-found',
-      points: [],
-      segments: [],
-    };
+  let bestStartIndex = -1;
+  let bestEndIndex = -1;
+  let bestStartProjection: ProjectionResult | null = null;
+  let bestEndProjection: ProjectionResult | null = null;
+  let bestConnectors: Vec2[] = [];
+  let bestTotalCost = Number.POSITIVE_INFINITY;
+
+  for (let startIndex = 0; startIndex < hallways.length; startIndex += 1) {
+    const startHallway = hallways[startIndex];
+    const startProjection = projectPointToSegment(
+      request.currentPosition,
+      startHallway.a,
+      startHallway.b
+    );
+    const startCost = Math.sqrt(startProjection.distanceSq);
+
+    for (let endIndex = 0; endIndex < hallways.length; endIndex += 1) {
+      const endHallway = hallways[endIndex];
+      const endProjection = projectPointToSegment(
+        destinationAnchor,
+        endHallway.a,
+        endHallway.b
+      );
+      const endCost = Math.sqrt(endProjection.distanceSq);
+
+      let hallwayCost = 0;
+      let hallwayConnectors: Vec2[] = [];
+
+      if (startIndex !== endIndex) {
+        const route = dijkstra(graph, startIndex, endIndex);
+        if (!route) {
+          continue;
+        }
+        hallwayCost = route.cost;
+        hallwayConnectors = route.connectors;
+      }
+
+      const totalCost = startCost + hallwayCost + endCost;
+      if (totalCost < bestTotalCost) {
+        bestTotalCost = totalCost;
+        bestStartIndex = startIndex;
+        bestEndIndex = endIndex;
+        bestStartProjection = startProjection;
+        bestEndProjection = endProjection;
+        bestConnectors = hallwayConnectors;
+      }
+    }
   }
 
-  const startIndex = hallways.findIndex((h) => h.nodeId === startHallwayInfo.hallway.nodeId);
-  const endIndex = hallways.findIndex((h) => h.nodeId === endHallwayInfo.hallway.nodeId);
-
-  if (startIndex < 0 || endIndex < 0) {
+  if (
+    bestStartIndex < 0 ||
+    bestEndIndex < 0 ||
+    !bestStartProjection ||
+    !bestEndProjection
+  ) {
     return {
       ok: false,
-      reason: 'hallway-index-not-found',
+      reason: 'hallway-route-not-found',
       points: [],
       segments: [],
     };
@@ -361,27 +379,11 @@ export function computeFlowAPath(request: FlowARequest): FlowAResult {
 
   const points: Vec2[] = [
     request.currentPosition,
-    startHallwayInfo.projection.point,
+    bestStartProjection.point,
+    ...bestConnectors,
+    bestEndProjection.point,
+    destinationAnchor,
   ];
-
-  if (startIndex !== endIndex) {
-    const graph = buildHallwayAdjacency(hallways);
-    const route = dijkstra(graph, startIndex, endIndex);
-
-    if (!route) {
-      return {
-        ok: false,
-        reason: 'hallway-route-not-found',
-        points: [],
-        segments: [],
-      };
-    }
-
-    points.push(...route.connectors);
-  }
-
-  points.push(endHallwayInfo.projection.point);
-  points.push(destinationAnchor);
 
   const dedupedPoints: Vec2[] = [];
   for (const point of points) {
@@ -418,7 +420,7 @@ export function computeFlowAPath(request: FlowARequest): FlowAResult {
     ok: true,
     points: dedupedPoints,
     segments,
-    startHallwayNodeId: startHallwayInfo.hallway.nodeId,
-    endHallwayNodeId: endHallwayInfo.hallway.nodeId,
+    startHallwayNodeId: hallways[bestStartIndex].nodeId,
+    endHallwayNodeId: hallways[bestEndIndex].nodeId,
   };
 }

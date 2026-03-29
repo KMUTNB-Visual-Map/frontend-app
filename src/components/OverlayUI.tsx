@@ -60,6 +60,7 @@ export default function OverlayUI() {
     currentFloorMetrics,
     lastMapClickPoint,
     navigationRoutePoints,
+    navigationPinLocation,
     setNavigationPinLocation,
     setNavigationRoutePoints,
     clearNavigationRoute,
@@ -76,12 +77,17 @@ export default function OverlayUI() {
   const flowBNearTimerRef = useRef<number | null>(null);
   const flowBPromptArmedRef = useRef(true);
   const flowBMarkerCounterRef = useRef(0);
+  const liveUserPositionRef = useRef<FlowAStartPoint>({ x: 0, z: 0 });
 
   const [userX, , userZ] = userPosition;
   const rawLat = rawGpsPosition?.[0];
   const rawLng = rawGpsPosition?.[1];
 
   const hasStartedNavigation = navigationRoutePoints.length >= 2;
+
+  useEffect(() => {
+    liveUserPositionRef.current = { x: userX, z: userZ };
+  }, [userX, userZ]);
 
   useEffect(() => {
     return () => {
@@ -146,6 +152,19 @@ export default function OverlayUI() {
         x: ((row.ax as number) + (row.bx as number)) / 2,
         z: ((row.az as number) + (row.bz as number)) / 2,
       };
+    }
+
+    return null;
+  };
+
+  const resolveTargetFloor = () => {
+    if (!targetLocation) return null;
+
+    const floorCandidate = (targetLocation as { floor?: unknown; floor_id?: unknown }).floor
+      ?? (targetLocation as { floor?: unknown; floor_id?: unknown }).floor_id;
+
+    if (typeof floorCandidate === 'number' && Number.isFinite(floorCandidate)) {
+      return floorCandidate;
     }
 
     return null;
@@ -259,6 +278,43 @@ export default function OverlayUI() {
     }
   };
 
+  const continueFlowAToTarget = (selectedFloor: number, startPoint?: FlowAStartPoint) => {
+    if (!targetLocation) {
+      clearNavigationRoute();
+      return false;
+    }
+
+    const continued = runFlowAToDestination(
+      {
+        floor_id: selectedFloor,
+        node_id: targetLocation.node_id ?? null,
+        x: targetLocation.x,
+        z: targetLocation.z,
+      },
+      selectedFloor,
+      startPoint
+    );
+
+    if (continued) {
+      return true;
+    }
+
+    // Fallback: retry from latest live user position in case connector start point is stale.
+    return runFlowAToDestination(
+      {
+        floor_id: selectedFloor,
+        node_id: targetLocation.node_id ?? null,
+        x: targetLocation.x,
+        z: targetLocation.z,
+      },
+      selectedFloor,
+      {
+        x: liveUserPositionRef.current.x,
+        z: liveUserPositionRef.current.z,
+      }
+    );
+  };
+
   const currentNodeName = useMemo(() => {
     const rows = LANDMARK_ROWS_DATA as LandmarkRow[];
     const floorRows = rows.filter((row) => row.floor_id === currentFloor);
@@ -325,6 +381,58 @@ export default function OverlayUI() {
 
     return nearestName;
   }, [currentFloor, userX, userZ]);
+
+  useEffect(() => {
+    if (!hasStartedNavigation) {
+      return;
+    }
+
+    const refreshRoute = () => {
+      const activeTarget = navigationPinLocation ?? targetLocation;
+      if (!activeTarget) return;
+
+      const destinationFloor =
+        typeof activeTarget.floor === 'number' ? activeTarget.floor : currentFloor;
+
+      if (destinationFloor !== currentFloor) {
+        return;
+      }
+
+      const result = computeFlowAPath({
+        currentPosition: {
+          x: liveUserPositionRef.current.x,
+          z: liveUserPositionRef.current.z,
+        },
+        currentFloor,
+        destination: {
+          floor_id: destinationFloor,
+          node_id: activeTarget.node_id ?? null,
+          x: activeTarget.x,
+          z: activeTarget.z,
+        },
+      });
+
+      if (!result.ok) {
+        return;
+      }
+
+      const routePoints = result.points.map((point) => [point.x, 0.12, point.z] as [number, number, number]);
+      setNavigationRoutePoints(routePoints);
+    };
+
+    refreshRoute();
+    const intervalId = window.setInterval(refreshRoute, 2000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [
+    currentFloor,
+    hasStartedNavigation,
+    navigationPinLocation,
+    setNavigationRoutePoints,
+    targetLocation,
+  ]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[999] p-6 flex flex-col justify-between">
@@ -499,7 +607,7 @@ export default function OverlayUI() {
                 onClick={() => {
                   setShowStartNavigationConfirm(false);
 
-                  const targetFloor = targetLocation.floor ?? currentFloor;
+                  const targetFloor = resolveTargetFloor() ?? currentFloor;
                   const userFloor = userActualFloor ?? currentFloor;
 
                   if (targetFloor !== userFloor) {
@@ -519,12 +627,7 @@ export default function OverlayUI() {
                     flowBNearTimerRef.current = null;
                   }
 
-                  runFlowAToDestination({
-                    floor_id: userFloor,
-                    node_id: targetLocation.node_id ?? null,
-                    x: targetLocation.x,
-                    z: targetLocation.z,
-                  });
+                  continueFlowAToTarget(userFloor);
                 }}
                 className="py-2 rounded-xl bg-sky-600 hover:bg-sky-500 transition-colors font-bold text-sm"
               >
@@ -680,7 +783,7 @@ export default function OverlayUI() {
                 <button
                   key={floor}
                   onClick={() => {
-                    const targetFloor = targetLocation?.floor;
+                    const targetFloor = resolveTargetFloor();
                     const selectedFloor = floor;
 
                     setUserActualFloor(floor);
@@ -706,16 +809,10 @@ export default function OverlayUI() {
                       };
 
                       setFlowBConnectorTarget(null);
-                      runFlowAToDestination(
-                        {
-                          floor_id: selectedFloor,
-                          node_id: targetLocation.node_id ?? null,
-                          x: targetLocation.x,
-                          z: targetLocation.z,
-                        },
-                        selectedFloor,
-                        continuationStart
-                      );
+                      const continued = continueFlowAToTarget(selectedFloor, continuationStart);
+                      if (!continued) {
+                        startFlowBToNearestConnector('any', selectedFloor, continuationStart);
+                      }
                       return;
                     }
 
