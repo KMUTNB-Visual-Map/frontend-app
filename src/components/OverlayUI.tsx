@@ -65,6 +65,7 @@ export default function OverlayUI() {
     setNavigationPinLocation,
     setNavigationRoutePoints,
     clearNavigationRoute,
+    setTarget,
     setFloor,
     setUserActualFloor,
     setJoystickInput,
@@ -202,6 +203,8 @@ export default function OverlayUI() {
     if (distance <= DESTINATION_ARRIVAL_DISTANCE && arrivalArmedRef.current) {
       arrivalArmedRef.current = false;
       clearNavigationRoute();
+      setTarget(null);
+      setNavigationPinLocation(null);
       setShowArrivedToast(true);
     }
   }, [
@@ -212,6 +215,8 @@ export default function OverlayUI() {
     userZ,
     currentFloor,
     clearNavigationRoute,
+    setTarget,
+    setNavigationPinLocation,
   ]);
 
   const getRowAnchor = (row: LandmarkRow): { x: number; z: number } | null => {
