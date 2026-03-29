@@ -11,6 +11,7 @@ import FloorModel from './FloorModel';
 import Avatar from './Avatar.jsx';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { Raycaster, Vector2, Plane, Vector3 } from 'three';
 
 export default function MapCanvas() {
   const {
@@ -24,8 +25,23 @@ export default function MapCanvas() {
     setUserPosition,
     setCurrentFloorMetrics,
   } = useNavStore();
-
+  const updateManualPosition = useNavStore((s) => s.updateManualPosition);
   const { gl, camera } = useThree();
+  const getScreenPosition = (x: number, z: number) => {
+    const vector = new THREE.Vector3(x, 1, z);
+    vector.project(camera);
+
+    const width = gl.domElement.clientWidth;
+    const height = gl.domElement.clientHeight;
+
+    return {
+      x: (vector.x * 0.5 + 0.5) * width,
+      y: (-vector.y * 0.5 + 0.5) * height,
+    };
+  };
+  const raycaster = useMemo(() => new Raycaster(), []);
+  const pointer = useMemo(() => new Vector2(), []);
+  const groundPlane = useMemo(() => new Plane(new Vector3(0, 1, 0), 0), []);
   const movingPositionRef = useRef<[number, number, number]>(userPosition);
   const publishAccumulatorRef = useRef(0);
   const followCameraHeightRef = useRef(1.3);
@@ -126,6 +142,7 @@ export default function MapCanvas() {
     };
   }, [cameraMode]);
 
+  
   // -----------------------------
   // Follow Mode Vertical Camera Adjustment
   // -----------------------------
@@ -182,6 +199,25 @@ export default function MapCanvas() {
     };
   }, [cameraMode, gl.domElement]);
 
+  const handlePointerDown = (event: PointerEvent) => {
+    const state = useNavStore.getState();
+
+    if (true) return; // ❗ ปิด click map ไปเลย
+
+    const rect = gl.domElement.getBoundingClientRect();
+
+    pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(pointer, camera);
+
+    const point = new Vector3();
+    raycaster.ray.intersectPlane(groundPlane, point);
+
+    if (point) {
+      updateManualPosition(point.x, point.z);
+    }
+  };
   const targetWorldPosition = useMemo<[number, number] | null>(() => {
     if (!targetLocation) return null;
 
@@ -209,6 +245,15 @@ export default function MapCanvas() {
     [currentFloor, setCurrentFloorMetrics]
   );
 
+  useEffect(() => {
+    const el = gl.domElement;
+
+    el.addEventListener('pointerdown', handlePointerDown);
+
+    return () => {
+      el.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, [gl, camera]);
   // -----------------------------
   // Touch Gesture Lock (mutually exclusive pan vs zoom)
   // -----------------------------
@@ -392,7 +437,13 @@ export default function MapCanvas() {
     state.camera.position.set(targetX, targetY, targetZ);
     state.camera.lookAt(nextPosition[0], 1.2, nextPosition[2]);
   });
+  useFrame(() => {
+    const [x, , z] = movingPositionRef.current;
 
+    const screenPos = getScreenPosition(x, z);
+
+    useNavStore.getState().setAvatarScreenPosition(screenPos);
+  });
   return (
     <>
       {/* Lighting */}

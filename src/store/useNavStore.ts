@@ -5,7 +5,7 @@ let positioning: PositioningManager | null = null;
 let mockTrackingTimer: ReturnType<typeof setInterval> | null = null;
 let mockTrackingSessionToken = 0;
 
-const USE_MOCK_TRACKING = true;  ////////debug mock location
+const USE_MOCK_TRACKING = false;  ////////debug mock location
 const MOCK_TRACKING_INTERVAL_MS = 1000;
 const AUTO_SWITCH_FLOOR_FROM_TRACKING = false;
 const SNAP_GPS_TO_BUILDING = true;
@@ -183,6 +183,9 @@ function snapWorldPositionToFloorBounds(
 }
 
 interface NavState {
+  avatarScreenPosition: { x: number; y: number } | null;
+  setAvatarScreenPosition: (pos: { x: number; y: number }) => void;
+  updateManualPosition: (x: number, z: number) => void;
   userId: string | null;
 
   // 🔹 UI floor
@@ -372,6 +375,8 @@ export const useNavStore = create<NavState>((set, get) => {
   };
 
   return ({
+  avatarScreenPosition: null,
+  setAvatarScreenPosition: (pos) => set({ avatarScreenPosition: pos }),
   userId: null,
 
   currentFloor: 1,
@@ -390,6 +395,18 @@ export const useNavStore = create<NavState>((set, get) => {
 
   setupStep: 'avatar',
   avatarType: null,
+
+  updateManualPosition: (x, z) => {
+    if (get().isFollowing) return; // 🔥 กัน GPS (สำคัญสุด)
+
+    if (positioning) {
+      positioning.updateManualPosition(x, z);
+    }
+
+    set({
+      userPosition: [x, 0, z],
+    });
+  },
 
   setUserActualFloor: (floor) => set({ userActualFloor: floor }),
 

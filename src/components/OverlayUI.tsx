@@ -1,6 +1,7 @@
 import SearchBox from './SearchBox';
 import FloorSelector from './FloorSelector';
 import SetupModals from './SetupModals'; 
+import { useRef } from 'react';
 import { getThirdPointCalibrationCheck, useNavStore } from '../store/useNavStore';
    // ตรวจสอบพิกัดเป้าหมายที่เลือกจาก SearchBox
 export default function OverlayUI() {
@@ -22,7 +23,35 @@ export default function OverlayUI() {
   const absX = convertedGpsMeters?.[0];
   const absZ = convertedGpsMeters?.[1];
   const thirdPointCheck = getThirdPointCalibrationCheck();
+  const avatarScreenPosition = useNavStore((s) => s.avatarScreenPosition);
+  const movingRef = useRef(false);
 
+  const startMove = (dx: number, dz: number) => {
+    const state = useNavStore.getState();
+    if (state.isFollowing) return;
+
+    movingRef.current = true;
+
+    const loop = () => {
+      if (!movingRef.current) return;
+
+      const { userPosition, updateManualPosition } = useNavStore.getState();
+      const [x, y, z] = userPosition;
+
+      updateManualPosition(
+        x + dx * 0.03,
+        z + dz * 0.03
+      );
+
+      requestAnimationFrame(loop);
+    };
+
+    loop(); // 🔥 สำคัญมาก (คุณลืม)
+  };
+
+  const stopMove = () => {
+    movingRef.current = false;
+  };
   return (
     <div className="fixed inset-0 pointer-events-none z-[999] p-6 flex flex-col justify-between">
       <SetupModals />
@@ -94,6 +123,73 @@ export default function OverlayUI() {
             <FloorSelector />
           </div>
         </div>
+      {!isFollowing && avatarScreenPosition && (
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 pointer-events-auto z-[9999]">
+          <div className="w-36 h-36 bg-black/40 rounded-full flex items-center justify-center backdrop-blur shadow-xl">
+            
+            <div className="grid grid-cols-3 gap-2 text-white text-xl">
+              
+              {/* แถวบน */}
+              <div />
+              <button
+                onMouseDown={() => startMove(0, 1)}
+                onMouseUp={stopMove}
+                onMouseLeave={stopMove}
+                className="w-10 h-10 rounded-full bg-white/20 active:bg-white/40 active:scale-90 transition"
+                onTouchStart={() => startMove(0, 1)}
+                onTouchEnd={stopMove}
+                onTouchCancel={stopMove}
+              >
+                ⬆
+              </button>
+              <div />
+
+              {/* แถวกลาง */}
+              <button
+                onMouseDown={() => startMove(1, 0)}
+                onMouseUp={stopMove}
+                onMouseLeave={stopMove}
+                className="w-10 h-10 rounded-full bg-white/20 active:bg-white/40 active:scale-90 transition"
+                onTouchStart={() => startMove(1, 0)}
+                onTouchEnd={stopMove}
+                onTouchCancel={stopMove}
+              >
+                ⬅
+              </button>
+
+              <div />
+
+              <button
+                onMouseDown={() => startMove(-1, 0)}
+                onMouseUp={stopMove}
+                onMouseLeave={stopMove}
+                className="w-10 h-10 rounded-full bg-white/20 active:bg-white/40 active:scale-90 transition"
+                onTouchStart={() => startMove(-1, 0)}
+                onTouchEnd={stopMove}
+                onTouchCancel={stopMove}
+              >
+                ➡
+              </button>
+
+              {/* แถวล่าง */}
+              <div />
+              <button
+                onMouseDown={() => startMove(0, -1)}
+                onMouseUp={stopMove}
+                onMouseLeave={stopMove}
+                className="w-10 h-10 rounded-full bg-white/20 active:bg-white/40 active:scale-90 transition"
+                onTouchStart={() => startMove(0, -1)}
+                onTouchEnd={stopMove}
+                onTouchCancel={stopMove}
+              >
+                ⬇
+              </button>
+              <div />
+
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
