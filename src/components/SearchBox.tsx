@@ -3,13 +3,17 @@ import { useNavStore } from '../store/useNavStore';
 import LANDMARK_ROWS_DATA from '../data/landmark_rows.json';
 
 interface Landmark {
-  node_id: number;
+  node_id: number | null;
   floor_id: number;
   name_th: string;
   name_eng: string;
   type: string;
-  x: number;
-  z: number;
+  x?: number | null;
+  z?: number | null;
+  ax?: number | null;
+  az?: number | null;
+  bx?: number | null;
+  bz?: number | null;
 }
 export default function SearchBox() {
   const [query, setQuery] = useState('');
@@ -22,15 +26,41 @@ export default function SearchBox() {
     discardRecalibrationChanges,
   } = useNavStore();
 
+  const getLandmarkAnchor = (loc: Landmark): { x: number; z: number } | null => {
+    if (typeof loc.x === 'number' && typeof loc.z === 'number') {
+      return { x: loc.x, z: loc.z };
+    }
+
+    if (
+      typeof loc.ax === 'number' &&
+      typeof loc.az === 'number' &&
+      typeof loc.bx === 'number' &&
+      typeof loc.bz === 'number'
+    ) {
+      return {
+        x: (loc.ax + loc.bx) / 2,
+        z: (loc.az + loc.bz) / 2,
+      };
+    }
+
+    return null;
+  };
+
   const navigateToLandmark = (loc: Landmark) => {
+    if (typeof loc.node_id !== 'number') {
+      return;
+    }
+
+    const anchor = getLandmarkAnchor(loc);
+
     setTarget({
       location_id: loc.node_id,
       node_id: loc.node_id,
       name_th: loc.name_th,
       markerKey: `${loc.node_id}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
       floor: loc.floor_id,
-      x: loc.x,
-      z: loc.z,
+      x: anchor?.x,
+      z: anchor?.z,
     });
   };
 

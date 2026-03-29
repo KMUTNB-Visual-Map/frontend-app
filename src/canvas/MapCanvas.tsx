@@ -10,6 +10,7 @@ import { gpsToWorldXZ, useNavStore } from '../store/useNavStore';
 import FloorModel from './FloorModel';
 import Avatar from './Avatar.jsx';
 import RedPin from './RedPin';
+import HallwaySegments from './HallwaySegments';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
@@ -526,6 +527,9 @@ export default function MapCanvas() {
         <group position={[0, 0, 0]}>
           <FloorModel floor={currentFloor} onMetricsComputed={handleFloorMetrics} />
         </group>
+
+        {/* Hallway guide lines */}
+        <HallwaySegments floor={currentFloor} />
 
         {/* Search target marker */}
         {targetWorldPosition && (
