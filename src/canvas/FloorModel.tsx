@@ -29,6 +29,8 @@ interface FloorModelProps {
 export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps) {
   const { scene } = useGLTF(`/models/archif${floor}.glb`);
   const setLastMapClickPoint = useNavStore((state) => state.setLastMapClickPoint);
+  const setUserPosition = useNavStore((state) => state.setUserPosition);
+  const isRecalibrating = useNavStore((state) => state.isRecalibrating);
 
   const { model, offset, metrics } = useMemo(() => {
     const cloned = scene.clone(true);
@@ -89,6 +91,11 @@ export default function FloorModel({ floor, onMetricsComputed }: FloorModelProps
             floor,
           };
           setLastMapClickPoint(clickPoint);
+
+          if (isRecalibrating) {
+            setUserPosition([clickPoint.x, 0, clickPoint.z]);
+          }
+
           console.log(`📍 พิกัด 3D -> X: ${clickPoint.x.toFixed(2)}, Z: ${clickPoint.z.toFixed(2)} (ชั้น ${clickPoint.floor})`);
         }}
       >

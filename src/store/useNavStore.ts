@@ -185,6 +185,7 @@ interface NavState {
 
   cameraMode: 'FREE' | 'FOLLOW';
   isFollowing: boolean;
+  isRecalibrating: boolean;
   trackingSource: TrackingSource;
   preferredTrackingSource: Exclude<TrackingSource, 'none'>;
 
@@ -199,6 +200,7 @@ interface NavState {
   setTarget: (location: TargetLocation | null) => void;
   setUserPosition: (position: [number, number, number]) => void;
   toggleFollowing: () => void;
+  toggleRecalibrateMode: () => void;
   switchTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
   setPreferredTrackingSource: (source: Exclude<TrackingSource, 'none'>) => void;
   cycleCameraMode: () => void;
@@ -299,6 +301,7 @@ export const useNavStore = create<NavState>((set, get) => {
 
   cameraMode: 'FREE',
   isFollowing: false,
+  isRecalibrating: false,
   trackingSource: 'none',
   preferredTrackingSource: DEFAULT_TRACKING_SOURCE,
 
@@ -450,6 +453,10 @@ export const useNavStore = create<NavState>((set, get) => {
         convertedGpsMeters: null,
       });
     }
+  },
+
+  toggleRecalibrateMode: () => {
+    set((state) => ({ isRecalibrating: !state.isRecalibrating }));
   },
   });
 });

@@ -4,9 +4,10 @@ import { useNavStore } from '../store/useNavStore';
 
 // 🟢 Component ย่อย: จัดการโหลดโมเดลและแอนิเมชัน
 function AvatarModel({ type }) {
-  const { userPosition, isFollowing } = useNavStore();
+  const { userPosition, isFollowing, isRecalibrating } = useNavStore();
   const group = useRef(null); // ไร้คราบ TypeScript แน่นอนครับ
-  const avatarPosition = [userPosition[0], userPosition[1] + 0.12, userPosition[2]];
+  const avatarLiftY = isRecalibrating ? 0.42 : 0.12;
+  const avatarPosition = [userPosition[0], userPosition[1] + avatarLiftY, userPosition[2]];
 
   // 1. โหลดไฟล์ 3D ทั้งหมด (เพิ่มไฟล์เดินของผู้ชายแล้ว)
   const femaleIdle = useGLTF('/models/women_idle.glb');

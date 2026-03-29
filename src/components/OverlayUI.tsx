@@ -7,6 +7,8 @@ export default function OverlayUI() {
   const {
     isFollowing,
     toggleFollowing,
+    isRecalibrating,
+    toggleRecalibrateMode,
     cameraMode,
     cycleCameraMode,
     userPosition,
@@ -56,18 +58,33 @@ export default function OverlayUI() {
       </div>
 
       <div className="flex justify-between items-end w-full">
-        {/* ปุ่ม GPS (ซ้ายล่าง) */}
-        <button 
-          onClick={() => toggleFollowing()}
-          className={`px-5 py-3 rounded-xl shadow-2xl transition-all active:scale-95 pointer-events-auto flex items-center justify-center border-2 font-black text-sm ${
-            isFollowing 
-              ? 'bg-blue-600 border-blue-400 text-white animate-pulse' 
-              : 'bg-white border-slate-200 text-slate-800'
-          }`}
-        >
-          <span className="mr-2 text-xl">{isFollowing ? '📡' : '📍'}</span>
-          {isFollowing ? 'GPS: TRACKING' : 'GPS: OFF'}
-        </button>
+        <div className="flex flex-col gap-3 pointer-events-auto">
+          {/* ปุ่ม GPS (ซ้ายล่าง) */}
+          <button 
+            onClick={() => toggleFollowing()}
+            className={`w-14 h-14 rounded-2xl shadow-xl transition-all active:scale-95 border-2 font-black text-[10px] flex flex-col items-center justify-center leading-tight ${
+              isFollowing 
+                ? 'bg-blue-600 border-blue-400 text-white animate-pulse' 
+                : 'bg-white border-slate-200 text-slate-800'
+            }`}
+          >
+            <span className="text-lg">{isFollowing ? '📡' : '📍'}</span>
+            <span>GPS</span>
+          </button>
+
+          {/* ปุ่ม Recalibrate (toggle) */}
+          <button
+            onClick={() => toggleRecalibrateMode()}
+            className={`w-14 h-14 rounded-2xl shadow-xl transition-all active:scale-95 border-2 font-black text-[10px] flex flex-col items-center justify-center leading-tight ${
+              isRecalibrating
+                ? 'bg-red-600 border-red-400 text-white'
+                : 'bg-white border-slate-200 text-slate-800'
+            }`}
+          >
+            <span className="text-lg">🛠️</span>
+            <span>CAL</span>
+          </button>
+        </div>
 
         {/* ปุ่ม Mode & Floor (ขวาล่าง) */}
         <div className="flex flex-row items-end gap-4">

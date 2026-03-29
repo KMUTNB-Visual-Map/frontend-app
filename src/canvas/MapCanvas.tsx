@@ -13,8 +13,8 @@ import RedPin from './RedPin';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
-// Toggle keyboard walking without changing existing navigation flows.
-const ENABLE_AVATAR_WASD_MOVEMENT = true;
+// Keyboard walking is disabled; recalibration movement uses map click/tap only.
+const ENABLE_AVATAR_WASD_MOVEMENT = false;
 const AVATAR_WASD_MOVE_SPEED = 1.5;
 
 export default function MapCanvas() {
@@ -23,6 +23,7 @@ export default function MapCanvas() {
     userActualFloor,
     cameraMode,
     isFollowing,
+    isRecalibrating,
     userPosition,
     avatarType,
     targetLocation,
@@ -399,13 +400,18 @@ export default function MapCanvas() {
   // Camera Follow Logic
   // -----------------------------
   useFrame((state, delta) => {
-    if (cameraMode !== 'FOLLOW') return;
+    const canRunMovement = cameraMode === 'FOLLOW' || isRecalibrating;
+    if (!canRunMovement) return;
     if (!shouldRenderAvatar) return;
 
     let nextPosition: [number, number, number] = movingPositionRef.current;
-    const shouldMoveToTarget = !isFollowing && targetWorldPosition !== null;
+    const shouldMoveToTarget =
+      !isFollowing &&
+      targetWorldPosition !== null &&
+      !isRecalibrating;
     const shouldMoveByKeyboard =
       ENABLE_AVATAR_WASD_MOVEMENT &&
+      isRecalibrating &&
       !isFollowing &&
       !shouldMoveToTarget &&
       pressedKeysRef.current.size > 0;
@@ -463,24 +469,26 @@ export default function MapCanvas() {
       publishAccumulatorRef.current = 0;
     }
 
-    const radius = 3.2;
-    const targetY = followCameraHeightRef.current;
-    const yawTarget = followYawTargetRef.current;
-    if (yawTarget !== null) {
-      const yawDelta = THREE.MathUtils.euclideanModulo(
-        yawTarget - followYawCurrentRef.current + Math.PI,
-        Math.PI * 2
-      ) - Math.PI;
-      followYawCurrentRef.current += yawDelta * Math.min(1, delta * 6);
+    if (cameraMode === 'FOLLOW') {
+      const radius = 3.2;
+      const targetY = followCameraHeightRef.current;
+      const yawTarget = followYawTargetRef.current;
+      if (yawTarget !== null) {
+        const yawDelta = THREE.MathUtils.euclideanModulo(
+          yawTarget - followYawCurrentRef.current + Math.PI,
+          Math.PI * 2
+        ) - Math.PI;
+        followYawCurrentRef.current += yawDelta * Math.min(1, delta * 6);
+      }
+
+      const yaw = followYawCurrentRef.current;
+
+      const targetX = nextPosition[0] + Math.cos(yaw) * radius;
+      const targetZ = nextPosition[2] + Math.sin(yaw) * radius;
+
+      state.camera.position.set(targetX, targetY, targetZ);
+      state.camera.lookAt(nextPosition[0], 1.2, nextPosition[2]);
     }
-
-    const yaw = followYawCurrentRef.current;
-
-    const targetX = nextPosition[0] + Math.cos(yaw) * radius;
-    const targetZ = nextPosition[2] + Math.sin(yaw) * radius;
-
-    state.camera.position.set(targetX, targetY, targetZ);
-    state.camera.lookAt(nextPosition[0], 1.2, nextPosition[2]);
   });
 
   return (
